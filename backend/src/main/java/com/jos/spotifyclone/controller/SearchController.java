@@ -3,6 +3,7 @@ package com.jos.spotifyclone.controller;
 import com.jos.spotifyclone.services.SpotifyConnect;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.model_objects.IModelObject;
+import com.wrapper.spotify.model_objects.special.SearchResult;
 import com.wrapper.spotify.model_objects.specification.*;
 import org.apache.hc.core5.http.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,4 +52,10 @@ public class SearchController {
     public Paging<Track> searchTrackController(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException {
         return spotifyConnect.getSpotifyApi().searchTracks(id).build().execute();
     }
+    
+    @GetMapping("/item")
+    public SearchResult searchItem(@RequestParam String item) throws ParseException, SpotifyWebApiException, IOException {
+    	return spotifyConnect.getSpotifyApi().searchItem(item, "track,album,playlist").build().execute();
+    }
+
 }
