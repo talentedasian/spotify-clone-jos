@@ -5,14 +5,12 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import com.wrapper.spotify.model_objects.specification.AlbumSimplified;
-
 
 @Component
 public class Albums {
 	
 	
-	private List<Items>items;
+	private List<Items> items;
 
 	public List<Items> getItems() {
 		return items;

@@ -4,16 +4,12 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.wrapper.spotify.model_objects.specification.AlbumSimplified;
-import com.wrapper.spotify.model_objects.specification.Paging;
-
 @Component
 public class Response {
 	
-	private List<Albums>albums;
+	private List<Albums> albums;
 
-	public Paging<AlbumSimplified> getAlbums() {
+	public List<Albums> getAlbums() {
 		return albums;
 	}
 
@@ -25,6 +21,8 @@ public class Response {
 		super();
 		// TODO Auto-generated constructor stub
 	}
+
+	
 
 	public Response(List<Albums> albums) {
 		super();

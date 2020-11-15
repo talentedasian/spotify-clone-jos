@@ -2,9 +2,7 @@ package com.jos.spotifyclone.controller;
 
 import com.jos.spotifyclone.services.SpotifyConnect;
 import com.neovisionaries.i18n.CountryCode;
-import com.wrapper.spotify.enums.ModelObjectType;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
-import com.wrapper.spotify.model_objects.special.FeaturedPlaylists;
 import com.wrapper.spotify.model_objects.special.SearchResult;
 import com.wrapper.spotify.model_objects.specification.*;
 import org.apache.hc.core5.http.ParseException;
