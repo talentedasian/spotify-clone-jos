@@ -1,6 +1,8 @@
 package com.jos.spotifyclone.model.album;
 
 
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
 import com.wrapper.spotify.model_objects.specification.AlbumSimplified;
@@ -10,13 +12,13 @@ import com.wrapper.spotify.model_objects.specification.AlbumSimplified;
 public class Albums {
 	
 	
-	private AlbumSimplified[] items;
+	private List<Items>items;
 
-	public AlbumSimplified[] getItems() {
+	public List<Items> getItems() {
 		return items;
 	}
 
-	public void setItems(AlbumSimplified[] items) {
+	public void setItems(List<Items> items) {
 		this.items = items;
 	}
 
@@ -26,7 +28,7 @@ public class Albums {
 		return super.toString();
 	}
 
-	public Albums(AlbumSimplified[] items) {
+	public Albums(List<Items> items) {
 		super();
 		this.items = items;
 	}

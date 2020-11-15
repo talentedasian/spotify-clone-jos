@@ -1,5 +1,7 @@
 package com.jos.spotifyclone.model.album;
 
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -9,13 +11,13 @@ import com.wrapper.spotify.model_objects.specification.Paging;
 @Component
 public class Response {
 	
-	private Paging<AlbumSimplified> albums;
+	private List<Albums>albums;
 
 	public Paging<AlbumSimplified> getAlbums() {
 		return albums;
 	}
 
-	public void setAlbums(Paging<AlbumSimplified> albums) {
+	public void setAlbums(List<Albums> albums) {
 		this.albums = albums;
 	}
 
@@ -24,7 +26,7 @@ public class Response {
 		// TODO Auto-generated constructor stub
 	}
 
-	public Response(Paging<AlbumSimplified> albums) {
+	public Response(List<Albums> albums) {
 		super();
 		this.albums = albums;
 	}
