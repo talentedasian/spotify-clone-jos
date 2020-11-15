@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import com.google.gson.JsonArray;
+
 
 @Component
 public class Albums {

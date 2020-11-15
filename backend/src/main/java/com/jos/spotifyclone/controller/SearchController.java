@@ -1,5 +1,14 @@
 package com.jos.spotifyclone.controller;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import com.jos.spotifyclone.model.album.Albums;
+import com.jos.spotifyclone.model.album.Items;
+import com.jos.spotifyclone.model.album.artist.Artist;
 import com.jos.spotifyclone.services.SpotifyConnect;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.model_objects.IModelObject;
@@ -10,11 +19,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 @RequestMapping("api/search")
 @RestController
 public class SearchController {
     @Autowired
     SpotifyConnect spotifyConnect;
+    
+    @Autowired
+    Items items;
+    
+    @Autowired
+    Albums albums;
+    
+    @Autowired
+    Artist artist;
+    
+    
 
     //TODO ${ARTIST_NAME_HERE} needs value storing elsewhere where this controller can access the search term to return searched for artist data
     //http://localhost:8080/api/search/artist?id=drake
@@ -54,8 +76,41 @@ public class SearchController {
     }
     
     @GetMapping("/item")
-    public SearchResult searchItem(@RequestParam String item) throws ParseException, SpotifyWebApiException, IOException {
-    	return spotifyConnect.getSpotifyApi().searchItem(item, "track,album,playlist").build().execute();
+    public String searchItem(@RequestParam String item) throws ParseException, SpotifyWebApiException, IOException {
+    	SearchResult result = spotifyConnect.getSpotifyApi().searchItem(item, "track,album,playlist").limit(4).build().execute();
+    	Gson gson = new GsonBuilder().setLenient().create();
+    	JsonObject album = com.google.gson.JsonParser.parseString(gson.toJson(result)).getAsJsonObject().getAsJsonObject("albums"); 
+    	List<JsonArray> c  = new ArrayList<>();
+    	c.add(album.getAsJsonArray("items").get(0).getAsJsonObject().getAsJsonArray("artists"));
+    	c.add(album.getAsJsonArray("items").get(1).getAsJsonObject().getAsJsonArray("artists"));
+    	c.add(album.getAsJsonArray("items").get(2).getAsJsonObject().getAsJsonArray("artists"));
+    	c.add(album.getAsJsonArray("items").get(3).getAsJsonObject().getAsJsonArray("artists"));
+    	JsonObject albumsd = null;
+    	for (int i = 0; i < 3; i++) {
+			albumsd = album.getAsJsonArray("items").get(i).getAsJsonObject();
+		
+    	
+    			while (albumsd.has("availableMarkets") && albumsd.has("albumType") && albumsd.has("href") 
+    					&& albumsd.has("id") && albumsd.has("releaseDate") && albumsd.has("releaseDatePrecision")&& albumsd.has("type") && albumsd.has("uri") 
+    					&& albumsd.has("type") && albumsd.has("uri")) {
+    					albumsd.remove("availableMarkets");
+						albumsd.remove("href");
+						albumsd.remove("id");
+						albumsd.remove("releaseDate");
+						albumsd.remove("releaseDatePrecision");
+						albumsd.remove("type");
+						albumsd.remove("uri");
+    				}
+    		
+    	}
+    	//System.out.println(lala);
+    	
+    	
+    	return albumsd.toString();
+    	
+    	
+    	
+    	
     }
 
 }

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.google.gson.JsonArray;
 import com.jos.spotifyclone.model.album.artist.Artist;
 import com.jos.spotifyclone.model.album.artist.Images;
 
@@ -17,7 +18,7 @@ import com.jos.spotifyclone.model.album.artist.Images;
 @JsonPropertyOrder({"artists", "spotify", "images", "name"})
 public class Items {
 	
-	private List<Artist> artists;
+	private List<JsonArray> artists;
 	
 	private ExternalUrls externalUrls;
 	
@@ -25,11 +26,11 @@ public class Items {
 	
 	private String name;
 
-	public List<Artist> getArtists() {
+	public List<JsonArray> getArtists() {
 		return artists;
 	}
 
-	public void setArtists(List<Artist> artists) {
+	public void setArtists(List<JsonArray> artists) {
 		this.artists = artists;
 	}
 
@@ -62,7 +63,7 @@ public class Items {
 		// TODO Auto-generated constructor stub
 	}
 
-	public Items(List<Artist> artists, ExternalUrls externalUrls, List<Images> images, String name) {
+	public Items(List<JsonArray> artists, ExternalUrls externalUrls, List<Images> images, String name) {
 		super();
 		this.artists = artists;
 		this.externalUrls = externalUrls;
