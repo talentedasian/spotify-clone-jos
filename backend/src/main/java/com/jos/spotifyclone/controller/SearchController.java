@@ -1,17 +1,10 @@
 package com.jos.spotifyclone.controller;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-import com.jos.spotifyclone.model.album.Albums;
-import com.jos.spotifyclone.model.album.Items;
-import com.jos.spotifyclone.model.album.artist.Artist;
+import com.jos.spotifyclone.services.SearchItem;
 import com.jos.spotifyclone.services.SpotifyConnect;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.model_objects.IModelObject;
+import com.wrapper.spotify.model_objects.IPlaylistItem;
+import com.wrapper.spotify.model_objects.miscellaneous.CurrentlyPlayingContext;
 import com.wrapper.spotify.model_objects.special.SearchResult;
 import com.wrapper.spotify.model_objects.specification.*;
 import org.apache.hc.core5.http.ParseException;
@@ -19,22 +12,34 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 @RequestMapping("api/search")
 @RestController
 public class SearchController {
-    @Autowired
-    SpotifyConnect spotifyConnect;
+
+    private SpotifyConnect spotifyConnect;
     
-    @Autowired
-    Items items;
     
-    @Autowired
-    Albums albums;
+    private SearchItem searchItem;
     
+    private com.jos.spotifyclone.model.album.Track track;
+
+	
+	
+	
     @Autowired
-    Artist artist;
+    public SearchController(SpotifyConnect spotifyConnect, SearchItem searchItem, com.jos.spotifyclone.model.album.Track track) {
+		super();
+		// TODO Auto-generated constructor stub
+		this.spotifyConnect = spotifyConnect;
+		this.searchItem = searchItem;
+		this.track = track;
+		
+	}
     
     
 
@@ -76,41 +81,27 @@ public class SearchController {
     }
     
     @GetMapping("/item")
-    public String searchItem(@RequestParam String item) throws ParseException, SpotifyWebApiException, IOException {
-    	SearchResult result = spotifyConnect.getSpotifyApi().searchItem(item, "track,album,playlist").limit(4).build().execute();
-    	Gson gson = new GsonBuilder().setLenient().create();
-    	JsonObject album = com.google.gson.JsonParser.parseString(gson.toJson(result)).getAsJsonObject().getAsJsonObject("albums"); 
-    	List<JsonArray> c  = new ArrayList<>();
-    	c.add(album.getAsJsonArray("items").get(0).getAsJsonObject().getAsJsonArray("artists"));
-    	c.add(album.getAsJsonArray("items").get(1).getAsJsonObject().getAsJsonArray("artists"));
-    	c.add(album.getAsJsonArray("items").get(2).getAsJsonObject().getAsJsonArray("artists"));
-    	c.add(album.getAsJsonArray("items").get(3).getAsJsonObject().getAsJsonArray("artists"));
-    	JsonObject albumsd = null;
-    	for (int i = 0; i < 3; i++) {
-			albumsd = album.getAsJsonArray("items").get(i).getAsJsonObject();
+    public List<Object> searchItem(@RequestParam String item) throws ParseException, SpotifyWebApiException, IOException, URISyntaxException {
+    	
+    			
 		
-    	
-    			while (albumsd.has("availableMarkets") && albumsd.has("albumType") && albumsd.has("href") 
-    					&& albumsd.has("id") && albumsd.has("releaseDate") && albumsd.has("releaseDatePrecision")&& albumsd.has("type") && albumsd.has("uri") 
-    					&& albumsd.has("type") && albumsd.has("uri")) {
-    					albumsd.remove("availableMarkets");
-						albumsd.remove("href");
-						albumsd.remove("id");
-						albumsd.remove("releaseDate");
-						albumsd.remove("releaseDatePrecision");
-						albumsd.remove("type");
-						albumsd.remove("uri");
-    				}
-    		
-    	}
-    	//System.out.println(lala);
-    	
-    	
-    	return albumsd.toString();
-    	
-    	
-    	
-    	
+    
+		return searchItem.searchAnItem(item);
     }
+    
 
+    @GetMapping("/currentPlayback")
+    public List<Object> currentPlayback () throws ParseException, SpotifyWebApiException, IOException {
+    		var response = spotifyConnect.getSpotifyApi().getInformationAboutUsersCurrentPlayback().build().execute();
+    		
+    		List<Object> d = new ArrayList<>();
+    		IPlaylistItem idk = response.getItem();
+    		String j = idk.getName();
+    		ExternalUrl url = idk.getExternalUrls();
+    		d.add(j);
+    		d.add(url);
+    		d.add(idk.getUri());
+    		return d;
+    }
+   
 }
