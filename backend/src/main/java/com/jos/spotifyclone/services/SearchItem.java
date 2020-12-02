@@ -48,33 +48,12 @@ public class SearchItem {
 	public List<Object> searchAnItem(String item) throws ParseException, SpotifyWebApiException, IOException{
 					
 	SearchResult result = spotifyConnect.getSpotifyApi().searchItem(item, "track,album,playlist").build().execute();
-	
-	AlbumSimplified[] albumsResult = result.getAlbums().getItems();
 					
-		Track[] tracksResult = result.getTracks().getItems();
+		
 		ConcurrentMap<Object,Object> newCache = cache.asMap();
 		List<Object> response = new ArrayList<>();
 								
-		Arrays.stream(albumsResult).forEach(value -> {
-			if (!newCache.containsKey(value.getName())) {
-				cache.put(value.getName(), Arrays.stream(albumsResult).map(i -> new Album(i.getName(),
-					Arrays.stream(i.getArtists()).map(ArtistSimplified::getName).collect(Collectors.toList()), 
-					Arrays.stream(i.getArtists()).map(ArtistSimplified::getExternalUrls).collect(Collectors.toList()), 
-					Arrays.stream(i.getImages()).map(Image::getUrl).collect(Collectors.toList()), i.getExternalUrls())).collect(Collectors.toList()));
-					
-					response.add(Arrays.stream(albumsResult).map(i -> new Album(i.getName(),
-						Arrays.stream(i.getArtists()).map(ArtistSimplified::getName).collect(Collectors.toList()), 
-						Arrays.stream(i.getArtists()).map(ArtistSimplified::getExternalUrls).collect(Collectors.toList()), 
-						Arrays.stream(i.getImages()).map(Image::getUrl).collect(Collectors.toList()), i.getExternalUrls())).collect(Collectors.toList()));
-					System.out.println("putting and not getting directly");
-						} else {
-							response.add(cache.getIfPresent(value.getName()));
-							System.out.println("getting directly");
-							}
-					});
-
-
-					System.out.println(cache.stats());
+		
 						
 				return response;
 			}
