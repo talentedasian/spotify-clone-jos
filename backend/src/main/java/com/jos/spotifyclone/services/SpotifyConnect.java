@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+
+import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
 
@@ -53,8 +55,10 @@ public class SpotifyConnect {
 
     @PostConstruct
     public void openAuthWindow() {
-        final URI uri = authorizationCodeUriRequestBuilder.build().execute();
         Runtime runtime = Runtime.getRuntime();
+        final URI uri = authorizationCodeUriRequestBuilder.build().execute();
+        System.out.println(uri);
+        
         try {
             runtime.exec("rundll32 url.dll,FileProtocolHandler " + uri);
         } catch (IOException e) {

@@ -49,7 +49,7 @@ public class SearchItem {
 	
 	public List<Object> searchAnItem(String item) throws ParseException, SpotifyWebApiException, IOException{
 					
-	SearchResult result = spotifyConnect.getSpotifyApi().searchItem(item, "track,album,playlist").build().execute();
+	SearchResult result = spotifyConnect.getSpotifyApi().searchItem(item, "artist,album,track").build().execute();
 					
 		
 		ConcurrentMap<Object,Object> newCache = cache.asMap();
@@ -66,11 +66,26 @@ public class SearchItem {
 					} else {
 						response.add(cache.getIfPresent(artists.getName()));
 						
-					}
-						
-						
+					}			
 				}
-		
+				
+				for (AlbumSimplified albums : result.getAlbums().getItems()) {
+					if (!newCache.containsKey(albums.getName())) {
+						List<Object> albumsToCache = new ArrayList<>();
+						albumsToCache.add(albums.getName());
+						albumsToCache.add(albums.getExternalUrls());
+						albumsToCache.add(albums.getHref());
+						albumsToCache.add(albums.getImages()[0].getUrl());
+						response.add(albumsToCache);
+						cache.put(albums.getName(), albumsToCache);
+					} else {
+						response.add(cache.getIfPresent(albums.getName()));
+					}
+				}
+				
+				for (Track tracks : result.getTracks().getItems()) {
+					
+				}
 						
 				return response;
 			}
