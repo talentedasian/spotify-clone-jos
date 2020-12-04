@@ -58,7 +58,6 @@ public class SpotifyConnect {
         Runtime runtime = Runtime.getRuntime();
         final URI uri = authorizationCodeUriRequestBuilder.build().execute();
         System.out.println(uri);
-        runtime.exec("sudo /usr/share/applications/google-chrome.desktop " + uri);
         try {
             runtime.exec("rundll32 url.dll,FileProtocolHandler " + uri);
         } catch (IOException e) {
