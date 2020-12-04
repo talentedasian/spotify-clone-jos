@@ -18,6 +18,7 @@ import com.jos.spotifyclone.model.album.AlbumName;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.model_objects.special.SearchResult;
 import com.wrapper.spotify.model_objects.specification.AlbumSimplified;
+import com.wrapper.spotify.model_objects.specification.Artist;
 import com.wrapper.spotify.model_objects.specification.ArtistSimplified;
 import com.wrapper.spotify.model_objects.specification.Image;
 import com.wrapper.spotify.model_objects.specification.Track;
@@ -37,6 +38,7 @@ public class SearchItem {
 	com.github.benmanes.caffeine.cache.Cache<Object, Object> cache = Caffeine.newBuilder().initialCapacity(150)
 			.maximumSize(1500).expireAfterAccess(60, TimeUnit.SECONDS).recordStats().build();
 	
+	
 	@Autowired
 	public SearchItem (SpotifyConnect spotifyConnect, 
 			AlbumName albums, Album album) {
@@ -52,7 +54,22 @@ public class SearchItem {
 		
 		ConcurrentMap<Object,Object> newCache = cache.asMap();
 		List<Object> response = new ArrayList<>();
-								
+				for (Artist  artists : result.getArtists().getItems()) {
+					if (!newCache.containsKey(artists.getName())) {
+						List<Object> artistsToCache = new ArrayList<>();
+						artistsToCache.add(artists.getName());
+						artistsToCache.add(artists.getExternalUrls());
+						artistsToCache.add(artists.getHref());
+						artistsToCache.add(artists.getImages()[0].getUrl());
+						response.add(artistsToCache);
+						cache.put(artists.getName(), artistsToCache);
+					} else {
+						response.add(cache.getIfPresent(artists.getName()));
+						
+					}
+						
+						
+				}
 		
 						
 				return response;
