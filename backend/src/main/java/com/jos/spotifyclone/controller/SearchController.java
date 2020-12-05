@@ -2,12 +2,15 @@ package com.jos.spotifyclone.controller;
 
 import com.jos.spotifyclone.services.SearchItem;
 import com.jos.spotifyclone.services.SpotifyConnect;
+import com.sun.net.httpserver.Headers;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.model_objects.IPlaylistItem;
 
 import com.jos.spotifyclone.model.*;
 import com.wrapper.spotify.model_objects.miscellaneous.PlaylistTracksInformation;
 import com.wrapper.spotify.model_objects.specification.*;
+
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -183,10 +186,11 @@ public class SearchController {
     @GetMapping("/item")
     public ResponseEntity<List<Object>> searchItem(@RequestParam String item) throws ParseException, SpotifyWebApiException, IOException, URISyntaxException {
     	
-    			
+    		Headers headers = new Headers();
+    		headers.add("access token: ", spotifyConnect.getSpotifyApi().getAccessToken());
 		
     
-		return searchItem.searchAnItem(item);
+		return searchItem(item);
     }
     
 

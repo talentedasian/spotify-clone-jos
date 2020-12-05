@@ -41,7 +41,7 @@ public class SearchItemMethods {
 	public List<Object> cacheAndPutAlbums (String name, ExternalUrl url, String href, String imageUrl) {
 		List<Object> albumsToCache = new ArrayList<>();
 		if (!cacheAsMap.containsKey(name)) {
-			albumsToCache.add(name);
+			albumsToCache.add(name); 
 			albumsToCache.add(url);
 			albumsToCache.add(href);
 			albumsToCache.add(imageUrl);
@@ -63,6 +63,7 @@ public class SearchItemMethods {
 		return tracksToCache;
 	
 	}
+	 
 	
 	
 	

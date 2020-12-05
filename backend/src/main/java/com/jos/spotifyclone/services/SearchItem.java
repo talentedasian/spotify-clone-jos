@@ -6,7 +6,10 @@ import java.util.List;
 
 import org.apache.hc.core5.http.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.interceptor.CacheAspectSupport;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -61,21 +64,25 @@ public class SearchItem {
 				for (ArtistSimplified artistsInTracks : tracks.getArtists()) {
 					trackToResponse.add(itemMethods.cacheAndPutTracks(tracks.getName(), tracks.getExternalUrls(), tracks.getHref()));
 					if (!itemMethods.cacheAsMap.containsKey(tracks.getAlbum().getName())) {
-						trackToResponse.add(tracks.getAlbum().getName());
-						trackToResponse.add(artistsInTracks.getName());
-						trackToResponse.add(artistsInTracks.getExternalUrls());
-						trackToResponse.add(artistsInTracks.getHref());
-						trackToResponse.add(tracks.getAlbum().getExternalUrls());
-						trackToResponse.add(tracks.getAlbum().getHref());
-						trackToResponse.add(tracks.getAlbum().getImages()[0].getUrl());
-						
-						
+						AlbumSimplified album = tracks.getAlbum();
+						trackToResponse.add(itemMethods.cacheAndPutAlbums(album.getName(), 
+								album.getExternalUrls(), album.getHref(), album.getImages()[0].getUrl()));
+						if (!itemMethods.cacheAsMap.containsKey(artistsInTracks.getName())) {
+							List<Object> artistsToCache = new ArrayList<>();
+							trackToResponse.add(itemMethods.cacheAndPutArtists(artistsInTracks.getName(), artistsInTracks.getExternalUrls(), artistsInTracks.getHref()));
+						} else {
+							response.add(itemMethods.cache.getIfPresent(artistsInTracks.getName()));
+						}
+					} else {
+						response.add(itemMethods.cache.getIfPresent(tracks.getAlbum().getName()));
 					}
 				}
-				
 		}
+		HttpHeaders headers = new HttpHeaders();
+		headers.setBearerAuth(spotifyConnect.getSpotifyApi().getAccessToken());
+		
 			
-		return ResponseEntity.ok().body(response);
+		return new ResponseEntity<List<Object>>(response, headers, HttpStatus.OK);
 	
-	}
+	}	
 }
