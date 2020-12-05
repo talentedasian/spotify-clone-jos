@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -28,9 +27,15 @@ public class SearchItemMethods {
 		return artistsToCache;
 	}
 	
-	public List<Object> cacheAndPutAlbums (String nam, ExternalUrl url, String href, String imageUrl) {
+	public List<Object> cacheAndPutAlbums (String name, ExternalUrl url, String href, String imageUrl) {
 		List<Object> albumsToCache = new ArrayList<>();
+		albumsToCache.add(name);
+		albumsToCache.add(url);
+		albumsToCache.add(href);
+		albumsToCache.add(imageUrl);
 		
+		
+		return albumsToCache;
 	}
 	
 	
