@@ -71,6 +71,20 @@ public class SearchItem {
 				albumsToCache.add(albums.getExternalUrls());
 				albumsToCache.add(albums.getHref());
 				albumsToCache.add(albums.getImages()[0].getUrl());
+				cache.put(albums.getName(), albumsToCache);
+				for (ArtistSimplified artists : albums.getArtists()) {
+					if (!newCache.containsKey(artists.getName())) {
+						List<Object> artistsToCacheInAlbums = new ArrayList<>();
+						artistsToCacheInAlbums.add(artists.getName());
+						artistsToCacheInAlbums.add(artists.getExternalUrls());
+						artistsToCacheInAlbums.add(artists.getHref());
+						albumsToCache.add(artistsToCacheInAlbums);
+						cache.put(artists.getName(), artistsToCacheInAlbums);
+					} else {
+					    albumsToCache.add(cache.getIfPresent(artists.getName()));
+				
+					}
+				}
 				response.add(albumsToCache);
 				cache.put(albums.getName(), albumsToCache);
 			} else {
@@ -81,9 +95,36 @@ public class SearchItem {
 		for (Track tracks : result.getTracks().getItems()) {
 			List<Object> tracksToCache = new ArrayList<>();
 			if (!newCache.containsKey(tracks.getName())) {
-				tracksToCache.add(tracks.getName());
-
-			}
+				if (!"track".equals(tracks.getType())) {
+					tracksToCache.add(tracks.getName());
+					AlbumSimplified albums = tracks.getAlbum();
+					if (!newCache.containsKey(tracks.getAlbum().getName())) {		
+						tracksToCache.add(albums.getName());
+						tracksToCache.add(albums.getExternalUrls());
+						tracksToCache.add(albums.getHref());
+						tracksToCache.add(albums.getImages()[0].getUrl());
+						for (ArtistSimplified artists : albums.getArtists()) {
+							if (!newCache.containsKey(artists.getName())) {
+								List<Object> artistsToCacheInTracks = new ArrayList<>();
+								artistsToCacheInTracks.add(artists.getName());
+								artistsToCacheInTracks.add(artists.getExternalUrls());
+								artistsToCacheInTracks.add(artists.getHref());
+								tracksToCache.add(artistsToCacheInTracks);
+								cache.put(artists.getName(), artistsToCacheInTracks);
+								response.add(tracksToCache);
+							} else {
+								tracksToCache.add(cache.getIfPresent(artists.getName()));
+							}
+						}
+					} else {
+						tracksToCache.add(cache.getIfPresent(albums.getName()));
+					}
+				} 
+				response.add(tracksToCache);
+				cache.put(tracks.getName(), tracksToCache);
+			} else {
+					response.add(tracks.getName());
+				}		
 		}
 
 		return response;
