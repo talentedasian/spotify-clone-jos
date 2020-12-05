@@ -68,7 +68,6 @@ public class SearchItem {
 						trackToResponse.add(itemMethods.cacheAndPutAlbums(album.getName(), 
 								album.getExternalUrls(), album.getHref(), album.getImages()[0].getUrl()));
 						if (!itemMethods.cacheAsMap.containsKey(artistsInTracks.getName())) {
-							List<Object> artistsToCache = new ArrayList<>();
 							trackToResponse.add(itemMethods.cacheAndPutArtists(artistsInTracks.getName(), artistsInTracks.getExternalUrls(), artistsInTracks.getHref()));
 						} else {
 							response.add(itemMethods.cache.getIfPresent(artistsInTracks.getName()));
