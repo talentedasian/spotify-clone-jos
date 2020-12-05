@@ -14,6 +14,7 @@ import com.wrapper.spotify.model_objects.special.SearchResult;
 import com.wrapper.spotify.model_objects.specification.AlbumSimplified;
 import com.wrapper.spotify.model_objects.specification.Artist;
 import com.wrapper.spotify.model_objects.specification.ArtistSimplified;
+import com.wrapper.spotify.model_objects.specification.Track;
 
 @Component
 @Configuration
@@ -54,6 +55,13 @@ public class SearchItem {
 				
 			}
 		
+		for (Track tracks : result.getTracks().getItems()) {
+				List<Object> trackToResponse = new ArrayList<>();
+				for (ArtistSimplified artistsInTracks : tracks.getArtists()) {
+					trackToResponse
+					
+				}
+		}
 			
 		return response;
 	
