@@ -10,6 +10,7 @@ import com.wrapper.spotify.model_objects.miscellaneous.PlaylistTracksInformation
 import com.wrapper.spotify.model_objects.specification.*;
 import org.apache.hc.core5.http.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -180,7 +181,7 @@ public class SearchController {
     }
     
     @GetMapping("/item")
-    public List<Object> searchItem(@RequestParam String item) throws ParseException, SpotifyWebApiException, IOException, URISyntaxException {
+    public ResponseEntity<List<Object>> searchItem(@RequestParam String item) throws ParseException, SpotifyWebApiException, IOException, URISyntaxException {
     	
     			
 		
@@ -189,18 +190,6 @@ public class SearchController {
     }
     
 
-    @GetMapping("/currentPlayback")
-    public List<Object> currentPlayback () throws ParseException, SpotifyWebApiException, IOException {
-    		var response = spotifyConnect.getSpotifyApi().getInformationAboutUsersCurrentPlayback().build().execute();
-    		
-    		List<Object> d = new ArrayList<>();
-    		IPlaylistItem idk = response.getItem();
-    		String j = idk.getName();
-    		ExternalUrl url = idk.getExternalUrls();
-    		d.add(j);
-    		d.add(url);
-    		d.add(idk.getUri());
-    		return d;
-    }
+    
    
 }

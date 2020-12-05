@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.hc.core5.http.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
@@ -32,7 +33,7 @@ public class SearchItem {
 		this.itemMethods = itemMethods;
 	}
 
-	public List<Object> searchAnItem(String item) throws ParseException, SpotifyWebApiException, IOException {
+	public ResponseEntity<List<Object>> searchAnItem(String item) throws ParseException, SpotifyWebApiException, IOException {
 
 		SearchResult result = spotifyConnect.getSpotifyApi().searchItem(item, "artist,album,track").build().execute();
 
@@ -58,12 +59,23 @@ public class SearchItem {
 		for (Track tracks : result.getTracks().getItems()) {
 				List<Object> trackToResponse = new ArrayList<>();
 				for (ArtistSimplified artistsInTracks : tracks.getArtists()) {
-					trackToResponse
-					
+					trackToResponse.add(itemMethods.cacheAndPutTracks(tracks.getName(), tracks.getExternalUrls(), tracks.getHref()));
+					if (!itemMethods.cacheAsMap.containsKey(tracks.getAlbum().getName())) {
+						trackToResponse.add(tracks.getAlbum().getName());
+						trackToResponse.add(artistsInTracks.getName());
+						trackToResponse.add(artistsInTracks.getExternalUrls());
+						trackToResponse.add(artistsInTracks.getHref());
+						trackToResponse.add(tracks.getAlbum().getExternalUrls());
+						trackToResponse.add(tracks.getAlbum().getHref());
+						trackToResponse.add(tracks.getAlbum().getImages()[0].getUrl());
+						
+						
+					}
 				}
+				
 		}
 			
-		return response;
+		return ResponseEntity.ok().body(response);
 	
 	}
 }

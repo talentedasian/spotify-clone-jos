@@ -51,6 +51,19 @@ public class SearchItemMethods {
 		return albumsToCache;
 	}
 	
+	public List<Object> cacheAndPutTracks (String name, ExternalUrl url, String href) {
+		List<Object> tracksToCache = new ArrayList<>();
+		if (!cacheAsMap.containsKey(name)) {
+			tracksToCache.add(name);
+			tracksToCache.add(url);
+			tracksToCache.add(href);
+		} else {
+			tracksToCache.add(cache.getIfPresent(name));
+		}
+		return tracksToCache;
+	
+	}
+	
 	
 	
 }
