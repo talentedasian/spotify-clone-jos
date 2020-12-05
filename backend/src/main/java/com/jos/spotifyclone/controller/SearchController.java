@@ -3,15 +3,9 @@ package com.jos.spotifyclone.controller;
 import com.jos.spotifyclone.services.SearchItem;
 import com.jos.spotifyclone.services.SpotifyConnect;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
-import com.wrapper.spotify.model_objects.IModelObject;
 import com.wrapper.spotify.model_objects.IPlaylistItem;
-import com.wrapper.spotify.model_objects.miscellaneous.CurrentlyPlayingContext;
-import com.wrapper.spotify.model_objects.special.SearchResult;
-
 
 import com.jos.spotifyclone.model.*;
-import com.jos.spotifyclone.services.SpotifyConnect;
-import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.model_objects.miscellaneous.PlaylistTracksInformation;
 import com.wrapper.spotify.model_objects.specification.*;
 import org.apache.hc.core5.http.ParseException;
@@ -33,19 +27,16 @@ public class SearchController {
     
     
     private SearchItem searchItem;
-    
-    private com.jos.spotifyclone.model.album.Track track;
 
 	
 	
 	
     @Autowired
-    public SearchController(SpotifyConnect spotifyConnect, SearchItem searchItem, com.jos.spotifyclone.model.album.Track track) {
+    public SearchController(SpotifyConnect spotifyConnect, SearchItem searchItem) {
 		super();
 		// TODO Auto-generated constructor stub
 		this.spotifyConnect = spotifyConnect;
 		this.searchItem = searchItem;
-		this.track = track;
 		
 	}
     
