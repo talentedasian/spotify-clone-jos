@@ -184,13 +184,11 @@ public class SearchController {
     }
     
     @GetMapping("/item")
-    public ResponseEntity<List<Object>> searchItem(@RequestParam String item) throws ParseException, SpotifyWebApiException, IOException, URISyntaxException {
+    public Map<String, List<Object>> searchItem(@RequestParam String item) throws ParseException, SpotifyWebApiException, IOException, URISyntaxException {
     	
-    		Headers headers = new Headers();
-    		headers.add("access token: ", spotifyConnect.getSpotifyApi().getAccessToken());
 		
     
-		return searchItem(item);
+		return searchItem.searchAnItem(item);
     }
     
 

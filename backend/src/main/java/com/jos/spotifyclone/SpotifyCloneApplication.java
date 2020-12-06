@@ -12,7 +12,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @SpringBootApplication
 @EnableAutoConfiguration
 @EnableCaching
-
 public class SpotifyCloneApplication {
 
 	@Value("spotify.frontend.url")
@@ -27,7 +26,7 @@ public class SpotifyCloneApplication {
 		return new WebMvcConfigurer() {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/api/*").allowedOrigins(FRONTEND_URL);
+				registry.addMapping("/api/**").allowedOrigins("http://localhost:3000");
 			}
 		};
 	

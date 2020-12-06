@@ -2,7 +2,9 @@ package com.jos.spotifyclone.services;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.hc.core5.http.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,53 +37,55 @@ public class SearchItem {
 		this.spotifyConnect = spotifyConnect;
 		this.itemMethods = itemMethods;
 	}
-
-	public ResponseEntity<List<Object>> searchAnItem(String item) throws ParseException, SpotifyWebApiException, IOException {
-
-		SearchResult result = spotifyConnect.getSpotifyApi().searchItem(item, "artist,album,track").build().execute();
-
-		List<Object> response = new ArrayList<>();
-		for (Artist artists : result.getArtists().getItems()) {
-			response.add(itemMethods.cacheAndPutArtists(artists.getName(), artists.getExternalUrls(), artists.getHref()));
-			}
-
-		for (AlbumSimplified albums : result.getAlbums().getItems()) {
-			List<Object> albumToResponse = new ArrayList<>();
-				
-			for (ArtistSimplified artistsInAlbum : albums.getArtists()) {
-				albumToResponse.add(itemMethods.cacheAndPutAlbums(albums.getName(), albums.getExternalUrls(),albums.getHref(), albums.getImages()[0].getUrl()));
-				if (!itemMethods.cacheAsMap.containsKey(albums.getName())) {
-				albumToResponse.add(itemMethods.cacheAndPutArtists(artistsInAlbum.getName(), artistsInAlbum.getExternalUrls(), artistsInAlbum.getHref()));
-				} else {
-					albumToResponse.add(itemMethods.cache.getIfPresent(artistsInAlbum.getName()));
-					}
-				}
-				
-			}
-		
-		for (Track tracks : result.getTracks().getItems()) {
-				List<Object> trackToResponse = new ArrayList<>();
-				for (ArtistSimplified artistsInTracks : tracks.getArtists()) {
-					trackToResponse.add(itemMethods.cacheAndPutTracks(tracks.getName(), tracks.getExternalUrls(), tracks.getHref()));
-					if (!itemMethods.cacheAsMap.containsKey(tracks.getAlbum().getName())) {
-						AlbumSimplified album = tracks.getAlbum();
-						trackToResponse.add(itemMethods.cacheAndPutAlbums(album.getName(), 
-								album.getExternalUrls(), album.getHref(), album.getImages()[0].getUrl()));
-						if (!itemMethods.cacheAsMap.containsKey(artistsInTracks.getName())) {
-							trackToResponse.add(itemMethods.cacheAndPutArtists(artistsInTracks.getName(), artistsInTracks.getExternalUrls(), artistsInTracks.getHref()));
-						} else {
-							response.add(itemMethods.cache.getIfPresent(artistsInTracks.getName()));
-						}
-					} else {
-						response.add(itemMethods.cache.getIfPresent(tracks.getAlbum().getName()));
-					}
-				}
-		}
-		HttpHeaders headers = new HttpHeaders();
-		headers.setBearerAuth(spotifyConnect.getSpotifyApi().getAccessToken());
-		
-			
-		return new ResponseEntity<List<Object>>(response, headers, HttpStatus.OK);
 	
-	}	
+	Map<String, List<Object>> response = new HashMap<>();
+
+	public Map<String, List<Object>> searchAnItem(String item) throws ParseException, SpotifyWebApiException, IOException {
+
+		SearchResult result = spotifyConnect.getSpotifyApi().searchItem(item, "artist,album,track").limit(10).build().execute();
+		Map<String, Object> tracksToResponse = new HashMap<>();
+ 		
+		List<Object> artistsToCache = new ArrayList<>();
+		List<Object> tracksToCache = new ArrayList<>();
+		List<Object> albumsToCache = new ArrayList<>();
+		
+		  for (Artist artists : result.getArtists().getItems()) {
+		  if (!artistsToCache.contains(itemMethods.cacheAndPutArtists(artists.getName(),
+		  artists.getExternalUrls(), artists.getHref()))) {
+			  artistsToCache.add(itemMethods.cacheAndPutArtists(artists.getName(),
+		  artists.getExternalUrls(), artists.getHref()));
+			  response.put("Artists ", artistsToCache); 
+			  }
+		  }
+		  
+//		  for (AlbumSimplified albums : result.getAlbums().getItems()) { 
+//			  if (!albumsToCache.contains(itemMethods.cacheAndPutAlbums(albums.getName(), albums.getExternalUrls(), albums.getHref(), albums.getImages()[0].getUrl()))) {
+//				  
+//				  albumsToCache.add(itemMethods.cacheAndPutAlbums(albums.getName(),albums.getExternalUrls(),albums.getHref(), albums.getImages()[0].getUrl()));
+//				  for (ArtistSimplified artistsInAlbum : albums.getArtists()) {
+//					  albumsToCache.add(itemMethods.cacheAndPutArtists(artistsInAlbum.getName(), artistsInAlbum.getExternalUrls(), artistsInAlbum.getHref())); 
+//		  			
+//					  response.put("Albums", albumsToCache);		  	
+//				  }		  			
+//			  }
+//		  }
+//			  
+//		for (Track tracks : result.getTracks().getItems()) {
+//			if (!tracks.getName().equalsIgnoreCase("gg")) {
+//				
+//				
+//				for (ArtistSimplified artistsInTracks : tracks.getArtists()) {
+//				tracksToCache.add(itemMethods.cacheAndPutTracks(tracks.getName(), tracks.getExternalUrls(),
+//						tracks.getHref()));
+//				tracksToResponse.put("Track Details", tracksToCache);
+//				}
+//			response.put("Tracks", tracksToResponse);
+//			}
+//		}
+//		
+			
+		return response;
+	
+	}
+		  
 }
