@@ -8,11 +8,7 @@ import java.util.Map;
 
 import org.apache.hc.core5.http.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.interceptor.CacheAspectSupport;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
@@ -46,45 +42,40 @@ public class SearchItem {
 		Map<String, Object> tracksToResponse = new HashMap<>();
  		
 		List<Object> artistsToCache = new ArrayList<>();
-		List<Object> tracksToCache = new ArrayList<>();
 		List<Object> albumsToCache = new ArrayList<>();
+		List<Object> tracksToCache = new ArrayList<>();
+		
 		
 		  for (Artist artists : result.getArtists().getItems()) {
-		  if (!artistsToCache.contains(itemMethods.cacheAndPutArtists(artists.getName(),
-		  artists.getExternalUrls(), artists.getHref()))) {
-			  artistsToCache.add(itemMethods.cacheAndPutArtists(artists.getName(),
-		  artists.getExternalUrls(), artists.getHref()));
-			  response.put("Artists ", artistsToCache); 
-			  }
-		  }
-//		  
-//		  for (AlbumSimplified albums : result.getAlbums().getItems()) { 
-//			  
-//				  
-//				  
-//				  for (ArtistSimplified artistsInAlbum : albums.getArtists()) {
-//		  				 albumsToCache.add(itemMethods.cacheAndPutAlbums(albums.getName(), albums.getExternalUrls(),
-//		  						 albums.getHref(), albums.getImages()[0].getUrl(),
-//		  						 artistsInAlbum.getName(), artistsInAlbum.getExternalUrls(), artistsInAlbum.getHref()));
-//		  				 itemMethods.cache.put(albums.getName(), albumsToCache);
-//		  			
-//					  response.put("Albums", albumsToCache);		  	
-//				  }		  			
-//			  
-//		  }
+	  		  artistsToCache.add(itemMethods.cacheAndPutArtists(artists.getName(),
+  				  artists.getExternalUrls(), artists.getHref()));
+	  		  	  response.put("Artists ", artistsToCache); 
 			  
-//		for (Track tracks : result.getTracks().getItems()) {
-//			if (!tracks.getName().equalsIgnoreCase("gg")) {
-//				
-//				
-//				for (ArtistSimplified artistsInTracks : tracks.getArtists()) {
-//				tracksToCache.add(itemMethods.cacheAndPutTracks(tracks.getName(), tracks.getExternalUrls(),
-//						tracks.getHref()));
-//				tracksToResponse.put("Track Details", tracksToCache);
-//				}
-//			response.put("Tracks", tracksToResponse);
-//			}
-//		}
+		  }
+		  
+		  for (AlbumSimplified albums : result.getAlbums().getItems()) { 
+			 
+				  for (ArtistSimplified artistsInAlbum : albums.getArtists()) {
+	  				 albumsToCache.add(itemMethods.cacheAndPutAlbums(albums.getName(), albums.getExternalUrls(),
+  						 albums.getHref(), albums.getImages()[0].getUrl(), artistsInAlbum.getName(), 
+  						 artistsInAlbum.getExternalUrls(), artistsInAlbum.getHref()));
+		  			
+					  response.put("Albums", albumsToCache);		  	
+				  }		  			
+			  
+		  }
+			  
+		for (Track tracks : result.getTracks().getItems()) {
+			if (!tracks.getName().equalsIgnoreCase("gg")) {
+	
+				for (ArtistSimplified artistsInTracks : tracks.getArtists()) {
+					tracksToCache.add(itemMethods.cacheAndPutTracks(tracks.getName(), tracks.getExternalUrls(),
+						tracks.getHref(), artistsInTracks.getName(), artistsInTracks.getExternalUrls(), artistsInTracks.getHref()));
+						tracksToResponse.put("Track Details", tracksToCache);
+				}
+			response.put("Tracks", tracksToCache);
+			}
+		}
 		
 			
 		return response;
