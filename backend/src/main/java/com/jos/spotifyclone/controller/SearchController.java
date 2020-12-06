@@ -8,6 +8,7 @@ import com.wrapper.spotify.model_objects.IPlaylistItem;
 
 import com.jos.spotifyclone.model.*;
 import com.wrapper.spotify.model_objects.miscellaneous.PlaylistTracksInformation;
+import com.wrapper.spotify.model_objects.special.SearchResult;
 import com.wrapper.spotify.model_objects.specification.*;
 
 import org.apache.hc.core5.http.Header;

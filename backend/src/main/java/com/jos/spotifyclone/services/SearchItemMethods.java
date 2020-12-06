@@ -9,10 +9,12 @@ import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Component;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.wrapper.spotify.model_objects.specification.AlbumSimplified;
 import com.wrapper.spotify.model_objects.specification.Artist;
 import com.wrapper.spotify.model_objects.specification.ArtistSimplified;
 import com.wrapper.spotify.model_objects.specification.ArtistSimplified.Builder;
 import com.wrapper.spotify.model_objects.specification.ExternalUrl;
+import com.wrapper.spotify.model_objects.specification.TrackSimplified;
 
 
 @Component
@@ -34,44 +36,45 @@ public class SearchItemMethods {
 	
 	
 	
-	public List<Object> cacheAndPutArtists (String name, ExternalUrl url, String href) {
-		List<Object> artistsToCache = new ArrayList<>();
-		if (!cacheAsMap.containsKey(name)) {
+	public ArtistSimplified cacheAndPutArtists (String name, ExternalUrl url, String href) {
+		
+		
+			if (!cacheAsMap.containsKey(name)) {
 			ArtistSimplified artist = new ArtistSimplified.Builder().setName(name).setExternalUrls(url).setHref(href).build();
-			artistsToCache.add(artist);
+			
 			cache.put(name, artist);
 			log.info("Putting and getting from cache");
 			System.out.println(artist);
-		} else {
-			artistsToCache.add(cache.getIfPresent(name));
+			return artist;
+			} else {
+			return (ArtistSimplified) cache.getIfPresent(name);
 			
-		}
-		return artistsToCache;
+			}
+		
 	}
 	
-	public List<Object> cacheAndPutAlbums (String name, ExternalUrl url, String href, String imageUrl) {
-		List<Object> albumsToCache = new ArrayList<>();
+	public AlbumSimplified cacheAndPutAlbums (String name, ExternalUrl url, String href, String imageUrl, 
+			String artistName, ExternalUrl artistUrl, String artistHref) {
 		if (!cacheAsMap.containsKey(name)) {
-			albumsToCache.add(name); 
-			albumsToCache.add(url);
-			albumsToCache.add(href);
-			albumsToCache.add(imageUrl);
+			AlbumSimplified album =  new AlbumSimplified.Builder().setName(name).setExternalUrls(url).setHref(href)
+					.setArtists(cacheAndPutArtists(artistName, artistUrl, artistHref)).build();
+						cache.put(name, album);
+					return album;
 		} else {
-			albumsToCache.add(cache.getIfPresent(name));
+			return (AlbumSimplified) cache.getIfPresent(name);
 		}
-		return albumsToCache;
+		
 	}
 	
-	public List<Object> cacheAndPutTracks (String name, ExternalUrl url, String href) {
-		List<Object> tracksToCache = new ArrayList<>();
+	public TrackSimplified cacheAndPutTracks (String name, ExternalUrl url, String href, String artistName, ExternalUrl artistUrl, String artistHref) {
 		if (!cacheAsMap.containsKey(name)) {
-			tracksToCache.add(name);
-			tracksToCache.add(url);
-			tracksToCache.add(href);
+			TrackSimplified track = new TrackSimplified.Builder().setName(name).setExternalUrls(url).setHref(href)
+					.setArtists(cacheAndPutArtists(artistName, artistUrl, artistHref)).build();
+			return track;
 		} else {
-			tracksToCache.add(cache.getIfPresent(name));
+			return (TrackSimplified) cache.getIfPresent(name);
 		}
-		return tracksToCache;
+		
 	
 	}
 	 

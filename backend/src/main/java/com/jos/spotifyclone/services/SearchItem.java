@@ -57,19 +57,22 @@ public class SearchItem {
 			  response.put("Artists ", artistsToCache); 
 			  }
 		  }
-		  
+//		  
 //		  for (AlbumSimplified albums : result.getAlbums().getItems()) { 
-//			  if (!albumsToCache.contains(itemMethods.cacheAndPutAlbums(albums.getName(), albums.getExternalUrls(), albums.getHref(), albums.getImages()[0].getUrl()))) {
+//			  
 //				  
-//				  albumsToCache.add(itemMethods.cacheAndPutAlbums(albums.getName(),albums.getExternalUrls(),albums.getHref(), albums.getImages()[0].getUrl()));
+//				  
 //				  for (ArtistSimplified artistsInAlbum : albums.getArtists()) {
-//					  albumsToCache.add(itemMethods.cacheAndPutArtists(artistsInAlbum.getName(), artistsInAlbum.getExternalUrls(), artistsInAlbum.getHref())); 
+//		  				 albumsToCache.add(itemMethods.cacheAndPutAlbums(albums.getName(), albums.getExternalUrls(),
+//		  						 albums.getHref(), albums.getImages()[0].getUrl(),
+//		  						 artistsInAlbum.getName(), artistsInAlbum.getExternalUrls(), artistsInAlbum.getHref()));
+//		  				 itemMethods.cache.put(albums.getName(), albumsToCache);
 //		  			
 //					  response.put("Albums", albumsToCache);		  	
 //				  }		  			
-//			  }
-//		  }
 //			  
+//		  }
+			  
 //		for (Track tracks : result.getTracks().getItems()) {
 //			if (!tracks.getName().equalsIgnoreCase("gg")) {
 //				
@@ -82,10 +85,10 @@ public class SearchItem {
 //			response.put("Tracks", tracksToResponse);
 //			}
 //		}
-//		
+		
 			
 		return response;
-	
+		  	
 	}
 		  
 }

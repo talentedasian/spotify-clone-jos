@@ -60,27 +60,27 @@ public class UserController {
 
         return map;
     }
-
-    @GetMapping("/playlist")
-    public Map<String,Object> playlistsOfCurrentUser() throws ParseException, SpotifyWebApiException, IOException {
-        var response = spotifyConnect.getSpotifyApi().getListOfCurrentUsersPlaylists().build().execute();
-        String href = response.getHref();
-
-        List<PlaylistModel> list = new ArrayList<>();
-        for (PlaylistSimplified playlist : response.getItems()){
-            ExternalUrl externalUrls = playlist.getExternalUrls();
-            String playlistName = playlist.getName();
-            PlaylistTracksInformation tracks = playlist.getTracks();
-            Image[] playlistCover = playlist.getImages();
-
-            list.add(new PlaylistModel(href, externalUrls, playlistName, tracks, playlistCover));
-        }
-
-        Map<String,Object> map = new HashMap<>();
-        map.put("User playlists", list);
-
-        return map;
-    }
+//
+//    @GetMapping("/playlist")
+//    public Map<String,Object> playlistsOfCurrentUser() throws ParseException, SpotifyWebApiException, IOException {
+//        var response = spotifyConnect.getSpotifyApi().getListOfCurrentUsersPlaylists().build().execute();
+//        String href = response.getHref();
+//
+//        List<PlaylistModel> list = new ArrayList<>();
+//        for (PlaylistSimplified playlist : response.getItems()){
+//            ExternalUrl externalUrls = playlist.getExternalUrls();
+//            String playlistName = playlist.getName();
+//            PlaylistTracksInformation tracks = playlist.getTracks();
+//            Image[] playlistCover = playlist.getImages();
+//
+//            list.add(new PlaylistModel(href, externalUrls, playlistName, tracks, playlistCover));
+//        }
+//
+//        Map<String,Object> map = new HashMap<>();
+//        map.put("User playlists", list);
+//
+//        return map;
+//    }
 
     @GetMapping("/followed-artists")
     public Map<String,Object> followedArtists() throws ParseException, SpotifyWebApiException, IOException {
