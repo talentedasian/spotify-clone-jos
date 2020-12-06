@@ -48,7 +48,7 @@ public class SearchItemMethods {
 				log.info("Putting and getting from Arist cache");
 				return artist;
 				} else {
-					log.info("Getting from arist cache");
+					log.info("Getting Directly and not putting from Arist cache");
 					return artistCache.getIfPresent(name);
 				}
 		
