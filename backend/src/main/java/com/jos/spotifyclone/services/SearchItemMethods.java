@@ -45,10 +45,10 @@ public class SearchItemMethods {
 			if (!artistCacheAsMap.containsKey(name)) {
 				ArtistSimplified artist = new ArtistSimplified.Builder().setName(name).setExternalUrls(url).setHref(href).build();
 				artistCache.put(name, artist);
-				log.info("Putting and getting from cache");
-				System.out.println(artist);
+				log.info("Putting and getting from Arist cache");
 				return artist;
 				} else {
+					log.info("Getting from arist cache");
 					return artistCache.getIfPresent(name);
 				}
 		
@@ -60,9 +60,10 @@ public class SearchItemMethods {
 			AlbumSimplified album =  new AlbumSimplified.Builder().setName(name).setExternalUrls(url).setHref(href)
 					.setArtists((ArtistSimplified)cacheAndPutArtists(artistName, artistUrl, artistHref)).build();
 						albumCache.put(name, album);
+						log.info("Putting and getting from Album cache");
 					return album;
 		} else {
-			
+			log.info("Getting Directly and not putting from Album Cache");
 			return  albumCache.getIfPresent(name);
 		}
 		
@@ -72,10 +73,13 @@ public class SearchItemMethods {
 		if (!trackCacheAsMap.containsKey(name)) {
 			TrackSimplified track = new TrackSimplified.Builder().setName(name).setExternalUrls(url).setHref(href)
 					.setArtists(cacheAndPutArtists(artistName, artistUrl, artistHref)).build();
+			log.info("Putting and getting from Track cache");
 			return track;
 			
 		} else {
+			log.info("Getting Directly and not putting from Track Cache");
 			return trackCache.getIfPresent(name);
+			
 		}
 		
 	
