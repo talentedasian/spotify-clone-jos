@@ -9,8 +9,12 @@ import java.util.Map;
 import org.apache.hc.core5.http.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+import com.sun.org.apache.xerces.internal.util.HTTPInputSource;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.model_objects.special.SearchResult;
 import com.wrapper.spotify.model_objects.specification.AlbumSimplified;
@@ -36,7 +40,7 @@ public class SearchItem {
 	
 	Map<String, List<Object>> response = new HashMap<>();
 
-	public Map<String, List<Object>> searchAnItem(String item) throws ParseException, SpotifyWebApiException, IOException {
+	public ResponseEntity<Map<String, List<Object>>> searchAnItem(String item) throws ParseException, SpotifyWebApiException, IOException {
 
 		SearchResult result = spotifyConnect.getSpotifyApi().searchItem(item, "artist,album,track").limit(10).build().execute();
 		Map<String, Object> tracksToResponse = new HashMap<>();
@@ -76,9 +80,10 @@ public class SearchItem {
 			response.put("Tracks", tracksToCache);
 			}
 		}
+		artistsToCache.add(spotifyConnect.getSpotifyApi().getAccessToken());
 		
 			
-		return response;
+		return new ResponseEntity<Map<String,List<Object>>>(response, HttpStatus.OK);
 		  	
 	}
 		  
