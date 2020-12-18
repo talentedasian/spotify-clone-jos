@@ -185,7 +185,7 @@ public class SearchController {
     }
     
     @GetMapping("/item")
-    public ResponseEntity<List<Object>> searchItem(@RequestParam String item) throws ParseException, SpotifyWebApiException, IOException, URISyntaxException {
+    public ResponseEntity<Map<String,List<Object>>> searchItem(@RequestParam String item) throws ParseException, SpotifyWebApiException, IOException, URISyntaxException {
     	
 		
     

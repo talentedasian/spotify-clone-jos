@@ -38,17 +38,25 @@ public class SearchItem {
 	
 	
 
-	public ResponseEntity<List<Object>> searchAnItem(String item) throws ParseException, SpotifyWebApiException, IOException {
+	public ResponseEntity<Map<String,List<Object>>> searchAnItem(String item) throws ParseException, SpotifyWebApiException, IOException {
 		
 		SearchResult result = spotifyConnect.getSpotifyApi().searchItem(item, "artist,album,track").limit(10).build().execute();
-		List<Object> response = new ArrayList<>();
+		Map<String, List<Object>> response = new HashMap<>();
+		
+		List<Object> artistToResponse = new ArrayList<>();
+		
+		List<Object> albumToResponse = new ArrayList<>();
+		
+		List<Object> trackToResponse =  new ArrayList<>();
 		
 		List<String> duplicate = new ArrayList<>();
  		
 		  for (Artist artists : result.getArtists().getItems()) {
 	  		  if (!duplicate.contains(artists.getName())) {
 		  		  duplicate.add(artists.getName());
-		  		  response.add(itemMethods.cacheAndPutArtists(artists.getName(),artists.getExternalUrls(), artists.getHref()));
+		  		  
+		  		  artistToResponse.add(itemMethods.cacheAndPutArtists(artists.getName(),artists.getExternalUrls(), artists.getHref()));
+		  		  response.put("Artists" , artistToResponse);
 	  		  }
 	  		  	   
 			  
@@ -58,9 +66,11 @@ public class SearchItem {
 			 
 				  for (ArtistSimplified artistsInAlbum : albums.getArtists()) {
 	  				 if (duplicate.contains(artistsInAlbum.getName())) {
-	  					 response.add(itemMethods.cacheAndPutAlbums(albums.getName(), albums.getExternalUrls(),
+	  					 albumToResponse.add(itemMethods.cacheAndPutAlbums(albums.getName(), albums.getExternalUrls(),
   							 albums.getHref(), albums.getImages()[0].getUrl(), artistsInAlbum.getName(), 
   							 	artistsInAlbum.getExternalUrls(), artistsInAlbum.getHref()));
+	  					 
+	  					 response.put("Albums" , albumToResponse);
 		  			
 					 		  	
 	  				 }		  	
@@ -73,8 +83,10 @@ public class SearchItem {
 	
 				for (ArtistSimplified artistsInTracks : tracks.getArtists()) {
 					if (duplicate.contains(artistsInTracks.getName())) {
-						response.add(itemMethods.cacheAndPutTracks(tracks.getName(), tracks.getExternalUrls(),
+						trackToResponse.add(itemMethods.cacheAndPutTracks(tracks.getName(), tracks.getExternalUrls(),
 							tracks.getHref(), artistsInTracks.getName(), artistsInTracks.getExternalUrls(), artistsInTracks.getHref()));
+						
+						response.put("Tracks" , trackToResponse);
 					}
 				}
 			}
@@ -82,7 +94,7 @@ public class SearchItem {
 		
 		
 			
-		return new ResponseEntity<List<Object>>(response, HttpStatus.OK);
+		return new ResponseEntity<Map<String, List<Object>>> (response, HttpStatus.OK);
 		  	
 	}
 		  
