@@ -36,52 +36,53 @@ public class SearchItem {
 		this.itemMethods = itemMethods;
 	}
 	
-	Map<String, List<Object>> response = new HashMap<>();
+	
 
-	public ResponseEntity<Map<String, List<Object>>> searchAnItem(String item) throws ParseException, SpotifyWebApiException, IOException {
-
+	public ResponseEntity<List<Object>> searchAnItem(String item) throws ParseException, SpotifyWebApiException, IOException {
+		
 		SearchResult result = spotifyConnect.getSpotifyApi().searchItem(item, "artist,album,track").limit(10).build().execute();
-		Map<String, Object> tracksToResponse = new HashMap<>();
+		List<Object> response = new ArrayList<>();
+		
+		List<String> duplicate = new ArrayList<>();
  		
-		List<Object> artistsToCache = new ArrayList<>();
-		List<Object> albumsToCache = new ArrayList<>();
-		List<Object> tracksToCache = new ArrayList<>();
-		
-		
 		  for (Artist artists : result.getArtists().getItems()) {
-	  		  artistsToCache.add(itemMethods.cacheAndPutArtists(artists.getName(),
-  				  artists.getExternalUrls(), artists.getHref()));
-	  		  	  response.put("Artists ", artistsToCache); 
+	  		  if (!duplicate.contains(artists.getName())) {
+		  		  duplicate.add(artists.getName());
+		  		  response.add(itemMethods.cacheAndPutArtists(artists.getName(),artists.getExternalUrls(), artists.getHref()));
+	  		  }
+	  		  	   
 			  
 		  }
 		  
 		  for (AlbumSimplified albums : result.getAlbums().getItems()) { 
 			 
 				  for (ArtistSimplified artistsInAlbum : albums.getArtists()) {
-	  				 albumsToCache.add(itemMethods.cacheAndPutAlbums(albums.getName(), albums.getExternalUrls(),
-  						 albums.getHref(), albums.getImages()[0].getUrl(), artistsInAlbum.getName(), 
-  						 artistsInAlbum.getExternalUrls(), artistsInAlbum.getHref()));
+	  				 if (duplicate.contains(artistsInAlbum.getName())) {
+	  					 response.add(itemMethods.cacheAndPutAlbums(albums.getName(), albums.getExternalUrls(),
+  							 albums.getHref(), albums.getImages()[0].getUrl(), artistsInAlbum.getName(), 
+  							 	artistsInAlbum.getExternalUrls(), artistsInAlbum.getHref()));
 		  			
-					  response.put("Albums", albumsToCache);		  	
-				  }		  			
+					 		  	
+	  				 }		  	
+			  	}
 			  
-		  }
+		  }        
 			  
 		for (Track tracks : result.getTracks().getItems()) {
 			if (!tracks.getName().equalsIgnoreCase("gg")) {
 	
 				for (ArtistSimplified artistsInTracks : tracks.getArtists()) {
-					tracksToCache.add(itemMethods.cacheAndPutTracks(tracks.getName(), tracks.getExternalUrls(),
-						tracks.getHref(), artistsInTracks.getName(), artistsInTracks.getExternalUrls(), artistsInTracks.getHref()));
-						tracksToResponse.put("Track Details", tracksToCache);
+					if (duplicate.contains(artistsInTracks.getName())) {
+						response.add(itemMethods.cacheAndPutTracks(tracks.getName(), tracks.getExternalUrls(),
+							tracks.getHref(), artistsInTracks.getName(), artistsInTracks.getExternalUrls(), artistsInTracks.getHref()));
+					}
 				}
-			response.put("Tracks", tracksToCache);
 			}
 		}
-		artistsToCache.add(spotifyConnect.getSpotifyApi().getAccessToken());
+		
 		
 			
-		return new ResponseEntity<Map<String,List<Object>>>(response, HttpStatus.OK);
+		return new ResponseEntity<List<Object>>(response, HttpStatus.OK);
 		  	
 	}
 		  
