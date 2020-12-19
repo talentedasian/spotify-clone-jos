@@ -7,9 +7,14 @@ import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Component;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.wrapper.spotify.enums.ModelObjectType;
+import com.wrapper.spotify.model_objects.specification.Album;
 import com.wrapper.spotify.model_objects.specification.AlbumSimplified;
+import com.wrapper.spotify.model_objects.specification.Artist;
 import com.wrapper.spotify.model_objects.specification.ArtistSimplified;
 import com.wrapper.spotify.model_objects.specification.ExternalUrl;
+import com.wrapper.spotify.model_objects.specification.Image;
+import com.wrapper.spotify.model_objects.specification.Track;
 import com.wrapper.spotify.model_objects.specification.TrackSimplified;
 
 
@@ -22,17 +27,22 @@ public class SearchItemMethods {
 		// TODO Auto-generated constructor stub
 	}
 	
-	com.github.benmanes.caffeine.cache.Cache<Object, ArtistSimplified> artistCache = Caffeine.newBuilder().initialCapacity(10)
+	com.github.benmanes.caffeine.cache.Cache<Object, ArtistSimplified> artistSimplifiedCache = Caffeine.newBuilder().initialCapacity(10)
 			.maximumSize(30).expireAfterAccess(60, TimeUnit.SECONDS).recordStats().build();
-	com.github.benmanes.caffeine.cache.Cache<Object, AlbumSimplified> albumCache = Caffeine.newBuilder().initialCapacity(10)
+	com.github.benmanes.caffeine.cache.Cache<Object, Artist> artistCache = Caffeine.newBuilder().initialCapacity(10)
 			.maximumSize(30).expireAfterAccess(60, TimeUnit.SECONDS).recordStats().build();
-	com.github.benmanes.caffeine.cache.Cache<Object, TrackSimplified> trackCache = Caffeine.newBuilder().initialCapacity(10)
+	com.github.benmanes.caffeine.cache.Cache<Object, AlbumSimplified> albumSimplifiedCache = Caffeine.newBuilder().initialCapacity(10)
+			.maximumSize(30).expireAfterAccess(60, TimeUnit.SECONDS).recordStats().build();
+	com.github.benmanes.caffeine.cache.Cache<Object, Album> albumCache = Caffeine.newBuilder().initialCapacity(10)
+			.maximumSize(30).expireAfterAccess(60, TimeUnit.SECONDS).recordStats().build();
+	com.github.benmanes.caffeine.cache.Cache<Object, Track> trackCache = Caffeine.newBuilder().initialCapacity(10)
 			.maximumSize(30).expireAfterAccess(60, TimeUnit.SECONDS).recordStats().build();
 	
-	
-	ConcurrentMap<Object,ArtistSimplified> artistCacheAsMap = artistCache.asMap();
-	ConcurrentMap<Object,ArtistSimplified> albumCacheAsMap = artistCache.asMap();
-	ConcurrentMap<Object,ArtistSimplified> trackCacheAsMap = artistCache.asMap();
+	ConcurrentMap<Object, ArtistSimplified> artistSimplifiedCacheAsMap = artistSimplifiedCache.asMap();
+	ConcurrentMap<Object,Artist> artistCacheAsMap = artistCache.asMap();
+	ConcurrentMap<Object,AlbumSimplified> albumSimplifiedCacheAsMap = albumSimplifiedCache.asMap();
+	ConcurrentMap<Object,Album> albumCacheAsMap = albumCache.asMap();
+	ConcurrentMap<Object,Track> trackCacheAsMap = trackCache.asMap();
 	
 	
 	org.apache.logging.log4j.Logger log = LogManager.getLogger(SearchItemMethods.class);
@@ -40,25 +50,51 @@ public class SearchItemMethods {
 	
 	
 	
-	public ArtistSimplified cacheAndPutArtists (String name, ExternalUrl url, String href) {
+	public Artist cacheAndPutArtists (String name, ExternalUrl url, String imageUrl) {
 			
 			if (!artistCacheAsMap.containsKey(name)) {
-				ArtistSimplified artist = new ArtistSimplified.Builder().setName(name).setExternalUrls(url).setHref(href).build();
+				Artist artist = new Artist.Builder()
+						.setName(name)
+						.setExternalUrls(url)
+						.setImages(new Image.Builder().setUrl(imageUrl).build())
+						.setType(ModelObjectType.ARTIST)
+						.build();
 				artistCache.put(name, artist);
 				log.info("Putting and getting from Arist cache");
 				return artist;
 				} else {
-					log.info("Getting Directly and not putting from Arist cache");
+					log.info("Getting Directly and not putting from Artist cache");
 					return artistCache.getIfPresent(name);
 				}
 		
 	}
 	
-	public AlbumSimplified cacheAndPutAlbums (String name, ExternalUrl url, String href, String imageUrl, 
-			String artistName, ExternalUrl artistUrl, String artistHref) {
+	public ArtistSimplified cacheAndPutArtistsSimplified (String name, ExternalUrl url) {
+		
+		if (!artistSimplifiedCacheAsMap.containsKey(name)) {
+			ArtistSimplified artist = new ArtistSimplified.Builder()
+					.setName(name)
+					.setExternalUrls(url)
+					.build();
+			artistSimplifiedCache.put(name, artist);
+			log.info("Putting and getting from Arist cache");
+			return artist;
+			} else {
+				log.info("Getting Directly and not putting from Artist cache");
+				return artistSimplifiedCache.getIfPresent(name);
+			}
+	
+}
+	
+	public Album cacheAndPutAlbums (String name, ExternalUrl url,String imageUrl, 
+			String artistName, ExternalUrl artistUrl, String artistImageUrl) {
 		if (!albumCacheAsMap.containsKey(name)) {
-			AlbumSimplified album =  new AlbumSimplified.Builder().setName(name).setExternalUrls(url).setHref(href)
-					.setArtists((ArtistSimplified)cacheAndPutArtists(artistName, artistUrl, artistHref)).build();
+			Album album =  new Album.Builder()
+					.setName(name)
+					.setExternalUrls(url)
+					.setImages(new Image.Builder().setUrl(imageUrl).build())
+					.setArtists( cacheAndPutArtistsSimplified(artistName, artistUrl))
+					.build();
 						albumCache.put(name, album);
 						log.info("Putting and getting from Album cache");
 					return album;
@@ -69,10 +105,32 @@ public class SearchItemMethods {
 		
 	}
 	
-	public TrackSimplified cacheAndPutTracks (String name, ExternalUrl url, String href, String artistName, ExternalUrl artistUrl, String artistHref) {
+	public AlbumSimplified cacheAndPutAlbumsSimplified (String name, ExternalUrl url, String imageUrl, 
+			String artistName, ExternalUrl artistUrl) {
+		if (!albumCacheAsMap.containsKey(name)) {
+			AlbumSimplified album =  new AlbumSimplified.Builder()
+					.setName(name)
+					.setExternalUrls(url)
+					.setImages(new Image.Builder().setUrl(imageUrl).build())
+					.setArtists( cacheAndPutArtistsSimplified(artistName, artistUrl))
+					.build();
+						albumSimplifiedCache.put(name, album);
+						log.info("Putting and getting from Album cache");
+					return album;
+		} else {
+			log.info("Getting Directly and not putting from Album Cache");
+			return  albumSimplifiedCache.getIfPresent(name);
+		}
+		
+	}
+	
+	public Track cacheAndPutTracks (String name, ExternalUrl url, String artistName, ExternalUrl artistUrl) {
 		if (!trackCacheAsMap.containsKey(name)) {
-			TrackSimplified track = new TrackSimplified.Builder().setName(name).setExternalUrls(url).setHref(href)
-					.setArtists(cacheAndPutArtists(artistName, artistUrl, artistHref)).build();
+			Track track = new Track.Builder()
+					.setName(name)
+					.setExternalUrls(url)
+					.setArtists(cacheAndPutArtistsSimplified(artistName, artistUrl))				
+					.build();
 			log.info("Putting and getting from Track cache");
 			return track;
 			

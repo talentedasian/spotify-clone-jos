@@ -55,7 +55,8 @@ public class SearchItem {
 	  		  if (!duplicate.contains(artists.getName())) {
 		  		  duplicate.add(artists.getName());
 		  		  
-		  		  artistToResponse.add(itemMethods.cacheAndPutArtists(artists.getName(),artists.getExternalUrls(), artists.getHref()));
+		  		  artistToResponse.add(itemMethods.cacheAndPutArtists(artists.getName(),artists.getExternalUrls(), 
+		  				  artists.getImages()[0].getUrl()));
 		  		  response.put("Artists" , artistToResponse);
 	  		  }
 	  		  	   
@@ -66,9 +67,9 @@ public class SearchItem {
 			 
 				  for (ArtistSimplified artistsInAlbum : albums.getArtists()) {
 	  				 if (duplicate.contains(artistsInAlbum.getName())) {
-	  					 albumToResponse.add(itemMethods.cacheAndPutAlbums(albums.getName(), albums.getExternalUrls(),
-  							 albums.getHref(), albums.getImages()[0].getUrl(), artistsInAlbum.getName(), 
-  							 	artistsInAlbum.getExternalUrls(), artistsInAlbum.getHref()));
+	  					 albumToResponse.add(itemMethods.cacheAndPutAlbumsSimplified(albums.getName(), albums.getExternalUrls(),
+  							 albums.getImages()[0].getUrl(), artistsInAlbum.getName(), 
+  							 	artistsInAlbum.getExternalUrls()));
 	  					 
 	  					 response.put("Albums" , albumToResponse);
 		  			
@@ -79,18 +80,16 @@ public class SearchItem {
 		  }        
 			  
 		for (Track tracks : result.getTracks().getItems()) {
-			if (!tracks.getName().equalsIgnoreCase("gg")) {
-	
 				for (ArtistSimplified artistsInTracks : tracks.getArtists()) {
 					if (duplicate.contains(artistsInTracks.getName())) {
 						trackToResponse.add(itemMethods.cacheAndPutTracks(tracks.getName(), tracks.getExternalUrls(),
-							tracks.getHref(), artistsInTracks.getName(), artistsInTracks.getExternalUrls(), artistsInTracks.getHref()));
+							artistsInTracks.getName(), artistsInTracks.getExternalUrls()));
 						
 						response.put("Tracks" , trackToResponse);
 					}
 				}
 			}
-		}
+		
 		
 		
 			
