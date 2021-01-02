@@ -18,7 +18,7 @@ import java.io.IOException;
 public class AudioController {
 
     @Autowired
-    SpotifyConnect spotifyConnect;
+    private SpotifyConnect spotifyConnect;
 
     //http://localhost:8080/api/audio/analysis?id=01iyCAUm8EvOFqVWYJ3dVX
     @GetMapping("/analysis")

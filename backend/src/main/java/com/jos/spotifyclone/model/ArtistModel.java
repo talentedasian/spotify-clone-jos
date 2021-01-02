@@ -10,32 +10,65 @@ public class ArtistModel {
     String[] genres;
     Image[] images;
     String artistName;
+	
+    public ArtistModel() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
 
-    public ArtistModel(ExternalUrl externalUrl, Followers followers, String[] genres, Image[] images, String artistName) {
-        this.externalUrl = externalUrl;
-        this.followers = followers;
-        this.genres = genres;
-        this.images = images;
-        this.artistName = artistName;
-    }
+	public ArtistModel(ExternalUrl externalUrl, Followers followers, String[] genres, Image[] images, String artistName) {
+		super();
+		this.externalUrl = externalUrl;
+		this.followers = followers;
+		this.genres = genres;
+		this.images = images;
+		this.artistName = artistName;
+	}
 
-    public ExternalUrl getExternalUrl() {
-        return externalUrl;
-    }
+	public ExternalUrl getExternalUrl() {
+		return externalUrl;
+	}
 
-    public Followers getFollowers() {
-        return followers;
-    }
+	public void setExternalUrl(ExternalUrl externalUrl) {
+		this.externalUrl = externalUrl;
+	}
 
-    public String[] getGenres() {
-        return genres;
-    }
+	public Followers getFollowers() {
+		return followers;
+	}
 
-    public Image[] getImages() {
-        return images;
-    }
+	public void setFollowers(Followers followers) {
+		this.followers = followers;
+	}
 
-    public String getArtistName() {
-        return artistName;
-    }
+	public String[] getGenres() {
+		return genres;
+	}
+
+	public void setGenres(String[] genres) {
+		this.genres = genres;
+	}
+
+	public Image[] getImages() {
+		return images;
+	}
+
+	public void setImages(Image[] images) {
+		this.images = images;
+	}
+
+	public String getArtistName() {
+		return artistName;
+	}
+
+	public void setArtistName(String artistName) {
+		this.artistName = artistName;
+	}
+	
+	
+    
+    
+    
+
+    
 }

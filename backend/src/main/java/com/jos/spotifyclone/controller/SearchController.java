@@ -2,6 +2,7 @@ package com.jos.spotifyclone.controller;
 
 import com.jos.spotifyclone.services.SearchItem;
 import com.jos.spotifyclone.services.SpotifyConnect;
+import com.neovisionaries.i18n.CountryCode;
 import com.sun.net.httpserver.Headers;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.model_objects.IPlaylistItem;
@@ -10,19 +11,30 @@ import com.jos.spotifyclone.model.*;
 import com.wrapper.spotify.model_objects.miscellaneous.PlaylistTracksInformation;
 import com.wrapper.spotify.model_objects.special.SearchResult;
 import com.wrapper.spotify.model_objects.specification.*;
+import com.wrapper.spotify.model_objects.specification.Artist.Builder;
 
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 @RequestMapping("api/search")
 @RestController
@@ -50,23 +62,22 @@ public class SearchController {
     //TODO ${ARTIST_NAME_HERE} needs value storing elsewhere where this controller can access the search term to return searched for artist data
     //http://localhost:8080/api/search/artist?id=drake
     @GetMapping("/artist")
-    public Map<String, Object> searchArtistController(@RequestParam String id) throws ParseException, IOException, SpotifyWebApiException {
-        var response = spotifyConnect.getSpotifyApi().searchArtists(id).build().execute();
+    public Artist searchArtistController(@RequestParam String id) throws ParseException, IOException, SpotifyWebApiException {
+        var response = spotifyConnect.getSpotifyApi().searchArtists(id).limit(1).build().execute();
 
-        List<ArtistModel> list = new ArrayList<>();
+        Builder artistResponse = new Artist.Builder();
+        
         for(Artist artist : response.getItems()){
-            ExternalUrl externalUrl = artist.getExternalUrls();
-            Followers followers = artist.getFollowers();
-            String[] genres = artist.getGenres();
-            Image[] images = artist.getImages();
-            String artistName = artist.getName();
-
-            list.add(new ArtistModel(externalUrl, followers, genres, images, artistName));
+            artistResponse.setName(artist.getName())
+            				.setFollowers(artist.getFollowers())
+            				.setGenres(artist.getGenres())
+            				.setExternalUrls(artist.getExternalUrls())
+            				.setImages(artist.getImages())
+            				.setId(artist.getId());
+        
         }
-
-        Map<String, Object> map = new HashMap<>();
-        map.put("Artist", list);
-        return map;
+        return artistResponse.build();
+        
     }
 
     //http://localhost:8080/api/search/album?id=arianagrande
@@ -154,38 +165,49 @@ public class SearchController {
     }
 
     //http://localhost:8080/api/search/track?id=positions
-    @GetMapping("/track")
-    public Map<String, Object> searchTrackController(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException {
-        var response = spotifyConnect.getSpotifyApi().searchTracks(id).build().execute();
-
-        List<TrackModel> list = new ArrayList<>();
-        for(Track track : response.getItems()){
-            String name = track.getName();
-            ExternalUrl externalUrls = track.getExternalUrls();
-
-            List<String> artistsList = new ArrayList<>();
-            ArtistSimplified[] artists = track.getArtists();
-            for(ArtistSimplified artistSimplified : artists){
-                artistsList.add(artistSimplified.getName());
-            }
-
-            List<AlbumModel> albumList  = new ArrayList<>();
-            String albumName = track.getAlbum().getName();
-            Image[] image = track.getAlbum().getImages();
-            ExternalUrl externalUrlsAlbum = track.getAlbum().getExternalUrls();
-
-            albumList.add(new AlbumModel(albumName, artistsList, image, externalUrlsAlbum));
-
-            list.add(new TrackModel(name, externalUrls, artistsList, albumList));
-        }
+    @GetMapping("/gg")
+    public Map<String, Object> searchArtist(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException {
+        var response = spotifyConnect.getSpotifyApi().searchArtists(id).limit(1).build().execute();
 
         Map<String, Object> map = new HashMap<>();
-        map.put("Tracks", list);
+        
+        List<Object> list = new ArrayList<>();
+        
+        for(Artist artist : response.getItems()){
+        	Artist artistToResponse = new Artist.Builder().setExternalUrls(artist.getExternalUrls())
+        			.setName(artist.getName())
+        			.setImages(new Image.Builder().setUrl(artist.getImages()[0].getUrl()).build())
+        			.setFollowers(artist.getFollowers())
+        			.setPopularity(artist.getPopularity())
+        			.build();
+        	
+        	list.add(artistToResponse);
+        	
+        	map.put("Artists", artistToResponse);
+    		Track[] artistsTopTracks = spotifyConnect.getSpotifyApi().getArtistsTopTracks(artist.getId(), CountryCode.US).build().execute();
+    			for (Track tracks: artistsTopTracks) {
+					Track trackToResponse = new Track.Builder().setExternalUrls(tracks.getExternalUrls())
+							.setName(tracks.getName())
+							.setPopularity(tracks.getPopularity())
+							.setDurationMs(tracks.getDurationMs())
+							.build();
+							
+					map.put("Top Tracks", trackToResponse);
+																											  	
+    				
+    			}
+            
+            
+        }
+
+        
+        
         return map;
     }
     
+   
     @GetMapping("/item")
-    public ResponseEntity<Map<String,List<Object>>> searchItem(@RequestParam String item) throws ParseException, SpotifyWebApiException, IOException, URISyntaxException {
+    public Map<String, List<Object>> searchItem(@RequestParam String item) throws ParseException, SpotifyWebApiException, IOException, URISyntaxException, InterruptedException, ExecutionException {
     	
 		
     
