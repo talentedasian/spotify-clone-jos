@@ -171,9 +171,10 @@ public class SearchController {
 
         Map<String, Object> map = new HashMap<>();
         
-        List<Object> list = new ArrayList<>();
         
+        List<Object> list2 = new ArrayList<>();
         for(Artist artist : response.getItems()){
+        	List<Object> list = new ArrayList<>();
         	Artist artistToResponse = new Artist.Builder().setExternalUrls(artist.getExternalUrls())
         			.setName(artist.getName())
         			.setImages(new Image.Builder().setUrl(artist.getImages()[0].getUrl()).build())
@@ -186,13 +187,16 @@ public class SearchController {
         	map.put("Artists", artistToResponse);
     		Track[] artistsTopTracks = spotifyConnect.getSpotifyApi().getArtistsTopTracks(artist.getId(), CountryCode.US).build().execute();
     			for (Track tracks: artistsTopTracks) {
+    				
 					Track trackToResponse = new Track.Builder().setExternalUrls(tracks.getExternalUrls())
 							.setName(tracks.getName())
 							.setPopularity(tracks.getPopularity())
 							.setDurationMs(tracks.getDurationMs())
 							.build();
 							
-					map.put("Top Tracks", trackToResponse);
+					list2.add(trackToResponse);
+					
+					
 																											  	
     				
     			}
@@ -200,7 +204,7 @@ public class SearchController {
             
         }
 
-        
+        map.put("Top Tracks", list2);
         
         return map;
     }
