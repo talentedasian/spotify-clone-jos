@@ -61,24 +61,7 @@ public class SearchController {
 
     //TODO ${ARTIST_NAME_HERE} needs value storing elsewhere where this controller can access the search term to return searched for artist data
     //http://localhost:8080/api/search/artist?id=drake
-    @GetMapping("/artist")
-    public Artist searchArtistController(@RequestParam String id) throws ParseException, IOException, SpotifyWebApiException {
-        var response = spotifyConnect.getSpotifyApi().searchArtists(id).limit(1).build().execute();
-
-        Builder artistResponse = new Artist.Builder();
-        
-        for(Artist artist : response.getItems()){
-            artistResponse.setName(artist.getName())
-            				.setFollowers(artist.getFollowers())
-            				.setGenres(artist.getGenres())
-            				.setExternalUrls(artist.getExternalUrls())
-            				.setImages(artist.getImages())
-            				.setId(artist.getId());
-        
-        }
-        return artistResponse.build();
-        
-    }
+    
 
     //http://localhost:8080/api/search/album?id=arianagrande
     @GetMapping("/album")
@@ -165,46 +148,73 @@ public class SearchController {
     }
 
     //http://localhost:8080/api/search/track?id=positions
-    @GetMapping("/gg")
+    @GetMapping("/artist")
     public Map<String, Object> searchArtist(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException {
         var response = spotifyConnect.getSpotifyApi().searchArtists(id).limit(1).build().execute();
 
         Map<String, Object> map = new HashMap<>();
         
         
-        List<Object> list2 = new ArrayList<>();
         for(Artist artist : response.getItems()){
         	List<Object> list = new ArrayList<>();
-        	Artist artistToResponse = new Artist.Builder().setExternalUrls(artist.getExternalUrls())
-        			.setName(artist.getName())
-        			.setImages(new Image.Builder().setUrl(artist.getImages()[0].getUrl()).build())
-        			.setFollowers(artist.getFollowers())
-        			.setPopularity(artist.getPopularity())
-        			.build();
+        	List<Object> list2 = new ArrayList<>();
+        	List<Object> list3 = new ArrayList<>();
+        	List<Object> list4 = new ArrayList<>();
+        		Artist artistToResponse = new Artist.Builder().setExternalUrls(artist.getExternalUrls())
+        				.setName(artist.getName())
+        				.setImages(new Image.Builder().setUrl(artist.getImages()[0].getUrl()).build())
+        				.setFollowers(artist.getFollowers())
+        				.setPopularity(artist.getPopularity())
+        				.build();
         	
         	list.add(artistToResponse);
         	
-        	map.put("Artists", artistToResponse);
+        	map.put("Artist", artistToResponse);
+        	
+        	Paging<AlbumSimplified> artistsAlbums = spotifyConnect.getSpotifyApi().getArtistsAlbums(artist.getId()).limit(10).build().execute();
+        	
+        	for (AlbumSimplified albums : artistsAlbums.getItems()) {
+        		AlbumSimplified albumToResponse = new AlbumSimplified.Builder().setExternalUrls(albums.getExternalUrls())
+        																		.setName(albums.getName())
+        																		.setImages(new Image.Builder().setUrl(albums.getImages()[0].getUrl()).build())
+        																		.build();
+        		
+        		list3.add(albumToResponse);
+        		map.put("AritstAlbums", list3);
+        	}
+        	
     		Track[] artistsTopTracks = spotifyConnect.getSpotifyApi().getArtistsTopTracks(artist.getId(), CountryCode.US).build().execute();
     			for (Track tracks: artistsTopTracks) {
+				
     				
 					Track trackToResponse = new Track.Builder().setExternalUrls(tracks.getExternalUrls())
-							.setName(tracks.getName())
-							.setPopularity(tracks.getPopularity())
-							.setDurationMs(tracks.getDurationMs())
-							.build();
-							
-					list2.add(trackToResponse);
+																.setName(tracks.getName())
+																.setPopularity(tracks.getPopularity())
+																.setDurationMs(tracks.getDurationMs())
+																.build();
 					
+					list2.add(trackToResponse);
+					map.put("TopTracks", list2);
 					
 																											  	
     				
     			}
-            
+    			
+			Artist[] relatedArtists = spotifyConnect.getSpotifyApi().getArtistsRelatedArtists(artist.getId()).build().execute();
+			
+            for (Artist artists : relatedArtists) {
+            	Artist relatedArtistToResponse = new Artist.Builder().setExternalUrls(artists.getExternalUrls())
+            														.setName(artists.getName())
+            														.setImages(new Image.Builder().setUrl(artists.getImages()[0].getUrl()).build())
+            														.build();
+            														
+            	list4.add(relatedArtistToResponse);
+            	map.put("RelatedArtists", relatedArtistToResponse);
+            	System.out.println(relatedArtistToResponse);
+            }
             
         }
 
-        map.put("Top Tracks", list2);
         
         return map;
     }
