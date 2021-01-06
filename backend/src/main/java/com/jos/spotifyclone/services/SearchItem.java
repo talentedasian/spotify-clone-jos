@@ -14,6 +14,7 @@ import java.util.concurrent.ForkJoinPool;
 import org.apache.hc.core5.http.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -46,7 +47,7 @@ public class SearchItem {
 	
 	
 
-	public Map<String, List<Object>> searchAnItem(String item) throws ParseException, SpotifyWebApiException, IOException{
+	public ResponseEntity<Map<String, List<Object>>> searchAnItem(String item) throws ParseException, SpotifyWebApiException, IOException{
 		
 		SearchResult result = spotifyConnect.getSpotifyApi().searchItem(item, "artist,album,track").limit(10).build().execute();
 		Map<String, List<Object>> response = new HashMap<>();
@@ -90,7 +91,10 @@ public class SearchItem {
 				}
 			}
 				
-		return response;
+		HttpHeaders headers = new HttpHeaders();
+		headers.setBearerAuth(spotifyConnect.getSpotifyApi().getAccessToken());
+			
+		return new ResponseEntity<Map<String, List<Object>>>(response, headers, HttpStatus.OK);
 		  	
 	}
 		  
