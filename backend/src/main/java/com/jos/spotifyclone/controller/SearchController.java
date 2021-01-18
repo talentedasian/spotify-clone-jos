@@ -30,6 +30,10 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.WebRequest;
 
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.image.ImageObserver;
+import java.awt.image.ImageProducer;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -66,49 +70,49 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
     //http://localhost:8080/api/search/artist?id=drake
     
 
-    //http://localhost:8080/api/search/album?id=arianagrande
-    @GetMapping("/album")
-    public Map<String, Object> searchAlbumController(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException {
-        var response = spotifyConnect.getSpotifyApi().searchAlbums(id).build().execute();
-
-        List<AlbumModel> list = new ArrayList<>();
-        for(AlbumSimplified album : response.getItems()){
-            String name = album.getName();
-            List<String> artist = new ArrayList<>();
-            Image[] image = album.getImages();
-            ExternalUrl externalUrl = album.getExternalUrls();
-
-            ArtistSimplified[] artistArray  = album.getArtists();
-            for(ArtistSimplified artistSimplified : artistArray){
-                artist.add(artistSimplified.getName());
-            }
-            list.add(new AlbumModel(name, artist, image, externalUrl));
-        }
-        
-        Map<String, Object> map = new HashMap<>();
-        map.put("Album", list);
-        return map;
-    }
-
-    //http://localhost:8080/api/search/episode?id=lauv
-    @GetMapping("/episode")
-    public Map<String, Object> searchEpisodeController(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException {
-        var response = spotifyConnect.getSpotifyApi().searchEpisodes(id).build().execute();
-
-        List<EpisodeModel> list = new ArrayList<>();
-        for(EpisodeSimplified search : response.getItems()){
-            String name = search.getName();
-            String[] language = search.getLanguages();
-            Image[] images = search.getImages();
-            ExternalUrl externalUrls = search.getExternalUrls();
-            String description = search.getDescription();
-
-            list.add(new EpisodeModel(name, language, images, externalUrls, description));
-        }
-        Map<String, Object> map = new HashMap<>();
-        map.put("Episode", list);
-        return map;
-    }
+//    //http://localhost:8080/api/search/album?id=arianagrande
+//    @GetMapping("/album")
+//    public Map<String, Object> searchAlbumController(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException {
+//        var response = spotifyConnect.getSpotifyApi().searchAlbums(id).build().execute();
+//
+//        List<AlbumModel> list = new ArrayList<>();
+//        for(AlbumSimplified album : response.getItems()){
+//            String name = album.getName();
+//            List<String> artist = new ArrayList<>();
+//            Image[] image = album.getImages();
+//            ExternalUrl externalUrl = album.getExternalUrls();
+//
+//            ArtistSimplified[] artistArray  = album.getArtists();
+//            for(ArtistSimplified artistSimplified : artistArray){
+//                artist.add(artistSimplified.getName());
+//            }
+//            list.add(new AlbumModel(name, artist, image, externalUrl));
+//        }
+//        
+//        Map<String, Object> map = new HashMap<>();
+//        map.put("Album", list);
+//        return map;
+//    }
+//
+//    //http://localhost:8080/api/search/episode?id=lauv
+//    @GetMapping("/episode")
+//    public Map<String, Object> searchEpisodeController(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException {
+//        var response = spotifyConnect.getSpotifyApi().searchEpisodes(id).build().execute();
+//
+//        List<EpisodeModel> list = new ArrayList<>();
+//        for(EpisodeSimplified search : response.getItems()){
+//            String name = search.getName();
+//            String[] language = search.getLanguages();
+//            Image[] images = search.getImages();
+//            ExternalUrl externalUrls = search.getExternalUrls();
+//            String description = search.getDescription();
+//
+//            list.add(new EpisodeModel(name, language, images, externalUrls, description));
+//        }
+//        Map<String, Object> map = new HashMap<>();
+//        map.put("Episode", list);
+//        return map;
+//    }
 
     //http://localhost:8080/api/search/show?id=bieber
     @GetMapping("/show")
@@ -131,29 +135,31 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
 
     //http://localhost:8080/api/search/playlist?id=bieber
     @GetMapping("/playlist")
-    public Map<String, Object> searchPlaylistController(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException {
-        var response = spotifyConnect.getSpotifyApi().searchPlaylists(id).build().execute();
-
-        List<PlaylistModel> list = new ArrayList<>();
-        for(PlaylistSimplified playlist : response.getItems()){
-            String href = playlist.getHref();
-            ExternalUrl externalUrls = playlist.getExternalUrls();
-            String playlistName = playlist.getName();
-            PlaylistTracksInformation tracks = playlist.getTracks();
-            Image[] playlistCover = playlist.getImages();
-
-            list.add(new PlaylistModel(href, externalUrls, playlistName, tracks, playlistCover));
+    public ResponseEntity<Map<String,List<Object>>> searchPlaylistController(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException {
+        if (request.checkNotModified(ComputeEtagValue.computeEtag(id))) {
+        	return null;
+        } 
+        
+    	Paging<PlaylistSimplified> response = spotifyConnect.getSpotifyApi().searchPlaylists(id).build().execute();
+        Map<String,List<Object>> map = new HashMap<>();
+        List<Object> playlistToResponse = new ArrayList<>();
+        for (PlaylistSimplified playlist : response.getItems()) {
+        	PlaylistSimplified playlistBuilder = new PlaylistSimplified.Builder()
+        			.setName(playlist.getName())
+        			.setId(playlist.getId())
+        			.setImages(new com.wrapper.spotify.model_objects.specification.Image.Builder()
+        					.setUrl(playlist.getImages()[0].getUrl())
+        					.build())
+    				.build();
+			playlistToResponse.add(playlistBuilder);
+			map.put("Playlist", playlistToResponse);
         }
-
-        Map<String, Object> map = new HashMap<>();
-        map.put("Playlist", list);
-        return map;
+        return responseEntity(map, id, HttpStatus.OK);
     }
 
     //START OF ARTIST ENDPOINT
     @GetMapping("/artist")
     public ResponseEntity<Map<String,List<Object>>> searchArtist(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException {
-        
     	if (request.checkNotModified(ComputeEtagValue.computeEtag(id))) {
     		return null;
     	}
@@ -161,18 +167,18 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
     	Paging<Artist> response = spotifyConnect.getSpotifyApi().searchArtists(id).limit(1).build().execute();
         Map<String, List<Object>> map = new HashMap<>();
         List<Object> artistToResponse = new ArrayList<>();
-        
         for(Artist artist : response.getItems()){
     		Artist artistBuilder = new Artist.Builder()
     				.setName(artist.getName())
     				.setId(artist.getId())
-    				.setImages(new Image.Builder().setUrl(artist.getImages()[0].getUrl()).build())
+    				.setImages(new com.wrapper.spotify.model_objects.specification.Image.Builder()
+    						.setUrl(artist.getImages()[0].getUrl())
+    						.build())
     				.setFollowers(artist.getFollowers())
     				.setPopularity(artist.getPopularity())
     				.build();
         	
         	artistToResponse.add(artistBuilder);
-        
         	map.put("Artist", artistToResponse);
         }	
         return responseEntity(map, id, HttpStatus.OK);
@@ -191,13 +197,72 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
     		Artist relatedArtistBuilder = new Artist.Builder()
     				.setName(relatedArtist.getName())
     				.setId(relatedArtist.getId())
-    				.setImages(new Image.Builder().setUrl(relatedArtist.getImages()[0].getUrl()).build())
+    				.setImages(new com.wrapper.spotify.model_objects.specification.Image.Builder()
+    						.setUrl(relatedArtist.getImages()[0].getUrl())
+    						.build())
     				.build();
     		
     		relatedArtistToResponse.add(relatedArtistBuilder);
     		map.put("RelatedArtists", relatedArtistToResponse);
     	}
     	return responseEntity(map, id, HttpStatus.OK);
+    }
+    
+    @GetMapping("/artistTopTrack")
+    public ResponseEntity<Map<String,List<Object>>> searchArtistTopTrack(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException, URISyntaxException, InterruptedException, ExecutionException {
+    	if (request.checkNotModified(ComputeEtagValue.computeEtag(id))) {
+    		return null;
+    	}
+    	
+    	Track[] response = spotifyConnect.getSpotifyApi().getArtistsTopTracks(id, CountryCode.US).build().execute();
+    	Map<String,List<Object>> map = new HashMap<>();
+    	List<Object> artistTopTrackToResponse = new ArrayList<>();
+    	for (Track artistTopTrack : response) {
+    		for (ArtistSimplified artistTopTrackArtist : artistTopTrack.getArtists()) {
+	    		Track artistTopTrackBuilder = new Track.Builder()
+	    				.setName(artistTopTrack.getName())
+	    				.setId(artistTopTrack.getId())
+	    				.setAlbum(new AlbumSimplified.Builder()
+	    						.setName(artistTopTrackArtist.getName())
+	    						.setId(artistTopTrackArtist.getId())
+	    						.setImages(new com.wrapper.spotify.model_objects.specification.Image.Builder()
+	    								.setUrl(artistTopTrack.getAlbum().getImages()[0].getUrl())
+	    								.build()).
+	    						build())
+						.build();
+				
+	    		artistTopTrackToResponse.add(artistTopTrackBuilder);
+	    		map.put("ArtistTopTrack", artistTopTrackToResponse);
+    		}
+    	}
+    	return responseEntity(map, id, HttpStatus.OK);
+    }
+    
+    @GetMapping("/artistAlbum")
+    public Paging<AlbumSimplified> searchArtistAlbum(@RequestParam String id, @RequestParam int limit) throws ParseException, SpotifyWebApiException, IOException, URISyntaxException, InterruptedException, ExecutionException {
+    	if (request.checkNotModified(ComputeEtagValue.computeEtag(id))) {
+    		return null;
+    	}
+    	
+    	Paging<AlbumSimplified> response = spotifyConnect.getSpotifyApi().getArtistsAlbums(id).limit(limit).build().execute();
+    	Map<String,List<Object>> map = new HashMap<>();
+    	List<Object> artistAlbumToResponse = new ArrayList<>();
+    	for (AlbumSimplified artistAlbum : response.getItems()) {
+    		for (ArtistSimplified artistAlbumArtist : artistAlbum.getArtists()) {
+	    		AlbumSimplified artistAlbumBuilder = new AlbumSimplified.Builder()
+	    				.setName(artistAlbum.getName())
+	    				.setId(artistAlbum.getId())
+	    				.setArtists(new ArtistSimplified.Builder()
+	    						.setName(artistAlbumArtist.getName())
+	    						.setId(artistAlbumArtist.getId())
+	    						.build())
+	    				.build();
+	    		
+	    		artistAlbumToResponse.add(artistAlbumBuilder);
+	    		map.put("ArtistAlbum", artistAlbumToResponse);
+    		}
+    	}
+    	return response;
     }
    
     @GetMapping("/item")
