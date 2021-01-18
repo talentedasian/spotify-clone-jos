@@ -7,6 +7,7 @@ import com.jos.spotifyclone.services.SpotifyConnect;
 import com.neovisionaries.i18n.CountryCode;
 import com.sun.net.httpserver.Headers;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
+import com.wrapper.spotify.exceptions.detailed.BadRequestException;
 import com.wrapper.spotify.model_objects.IPlaylistItem;
 
 import com.jos.spotifyclone.model.*;
@@ -263,8 +264,9 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
     		}
     	}
     	return response;
-    }
+    }//END OF ARTIST ENDPOINT
    
+    
     @GetMapping("/item")
     public ResponseEntity<Map<String,List<Object>>> searchItem(@RequestParam String item) throws ParseException, SpotifyWebApiException, IOException, URISyntaxException, InterruptedException, ExecutionException {
     	
