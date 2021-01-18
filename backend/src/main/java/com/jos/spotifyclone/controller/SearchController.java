@@ -1,5 +1,7 @@
 package com.jos.spotifyclone.controller;
 
+import com.jos.spotifyclone.services.ComputeEtagValue;
+import com.jos.spotifyclone.services.HttpHeadersResponse;
 import com.jos.spotifyclone.services.SearchItem;
 import com.jos.spotifyclone.services.SpotifyConnect;
 import com.neovisionaries.i18n.CountryCode;
@@ -26,6 +28,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.context.request.WebRequest;
 
 import java.io.IOException;
 import java.net.URI;
@@ -39,23 +42,22 @@ import java.util.concurrent.TimeoutException;
 
 @RequestMapping("api/search")
 @RestController
-public class SearchController {
+public class SearchController implements HttpHeadersResponse<Map<String,List<Object>>>{
 
     private SpotifyConnect spotifyConnect;
-    
-    
     private SearchItem searchItem;
+    private WebRequest request;
 
 	
 	
 	
     @Autowired
-    public SearchController(SpotifyConnect spotifyConnect, SearchItem searchItem) {
+    public SearchController(SpotifyConnect spotifyConnect, SearchItem searchItem, WebRequest request) {
 		super();
 		// TODO Auto-generated constructor stub
 		this.spotifyConnect = spotifyConnect;
 		this.searchItem = searchItem;
-		
+		this.request = request;
 	}
     
     
@@ -148,89 +150,75 @@ public class SearchController {
         return map;
     }
 
-    //http://localhost:8080/api/search/track?id=positions
+    //START OF ARTIST ENDPOINT
     @GetMapping("/artist")
-    public ResponseEntity<Map<String,Object>> searchArtist(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException {
-        var response = spotifyConnect.getSpotifyApi().searchArtists(id).limit(1).build().execute();
-
-        Map<String, Object> map = new HashMap<>();
+    public ResponseEntity<Map<String,List<Object>>> searchArtist(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException {
         
+    	if (request.checkNotModified(ComputeEtagValue.computeEtag(id))) {
+    		return null;
+    	}
+    	
+    	Paging<Artist> response = spotifyConnect.getSpotifyApi().searchArtists(id).limit(1).build().execute();
+        Map<String, List<Object>> map = new HashMap<>();
+        List<Object> artistToResponse = new ArrayList<>();
         
         for(Artist artist : response.getItems()){
-        	List<Object> artistToResponse = new ArrayList<>();
-        	List<Object> artistsAlbumsToResponse = new ArrayList<>();
-        	List<Object> artistsTopTracksToResponse = new ArrayList<>();
-        	List<Object> artistsRelatedArtistsToResponse = new ArrayList<>();
-        		Artist artistBuilder = new Artist.Builder().setExternalUrls(artist.getExternalUrls())
-        				.setName(artist.getName())
-        				.setImages(new Image.Builder().setUrl(artist.getImages()[0].getUrl()).build())
-        				.setFollowers(artist.getFollowers())
-        				.setPopularity(artist.getPopularity())
-        				.build();
+    		Artist artistBuilder = new Artist.Builder()
+    				.setName(artist.getName())
+    				.setId(artist.getId())
+    				.setImages(new Image.Builder().setUrl(artist.getImages()[0].getUrl()).build())
+    				.setFollowers(artist.getFollowers())
+    				.setPopularity(artist.getPopularity())
+    				.build();
         	
         	artistToResponse.add(artistBuilder);
-        	
+        
         	map.put("Artist", artistToResponse);
-        	
-        	Paging<AlbumSimplified> artistsAlbums = spotifyConnect.getSpotifyApi().getArtistsAlbums(artist.getId()).limit(5).build().execute();
-        	
-        	for (AlbumSimplified albums : artistsAlbums.getItems()) {
-        		AlbumSimplified albumBuilder = new AlbumSimplified.Builder().setExternalUrls(albums.getExternalUrls())
-        																		.setName(albums.getName())
-        																		.setImages(new Image.Builder().setUrl(albums.getImages()[0].getUrl()).build())
-        																		.build();
-        		
-        		artistsAlbumsToResponse.add(albumBuilder);
-        		map.put("AritstAlbums", artistsAlbumsToResponse);
-        	}
-        	
-    		Track[] artistsTopTracks = spotifyConnect.getSpotifyApi().getArtistsTopTracks(artist.getId(), CountryCode.US).build().execute();
-    			for (Track tracks: artistsTopTracks) {
-				
-    				
-					Track trackBuilder = new Track.Builder().setExternalUrls(tracks.getExternalUrls())
-																.setName(tracks.getName())
-																.setPopularity(tracks.getPopularity())
-																.setDurationMs(tracks.getDurationMs())
-																.build();
-					
-					artistsTopTracksToResponse.add(trackBuilder);
-					map.put("TopTracks", artistsTopTracksToResponse);
-					
-																											  	
-    				
-    			}
-    			
-			Artist[] relatedArtists = spotifyConnect.getSpotifyApi().getArtistsRelatedArtists(artist.getId()).build().execute();
-			
-            for (Artist artists : relatedArtists) {
-            	Artist relatedArtistBuilder = new Artist.Builder().setExternalUrls(artists.getExternalUrls())
-            														.setName(artists.getName())
-            														.setImages(new Image.Builder().setUrl(artists.getImages()[0].getUrl()).build())
-            														.build();
-            														
-            	artistsRelatedArtistsToResponse.add(relatedArtistBuilder);
-            	map.put("RelatedArtists", artistsRelatedArtistsToResponse);
-            }
-            
-        }
-        
-        
-      HttpHeaders headers = new HttpHeaders();
-      headers.setBearerAuth(spotifyConnect.getSpotifyApi().getAccessToken());
-      headers.setConnection("close");
-      
-        return new ResponseEntity<Map<String, Object>>(map, headers, HttpStatus.OK);
+        }	
+        return responseEntity(map, id, HttpStatus.OK);
     }
     
+    @GetMapping("/relatedArtist")
+    public ResponseEntity<Map<String,List<Object>>> searchRelatedArtist(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException, URISyntaxException, InterruptedException, ExecutionException { 
+    	if (request.checkNotModified(ComputeEtagValue.computeEtag(id))) {
+    		return null;
+    	} 
+    	
+    	Artist[] response = spotifyConnect.getSpotifyApi().getArtistsRelatedArtists(id).build().execute();
+    	Map<String,List<Object>> map = new HashMap<>();
+		List<Object> relatedArtistToResponse = new ArrayList<>();
+    	for (Artist relatedArtist : response) {
+    		Artist relatedArtistBuilder = new Artist.Builder()
+    				.setName(relatedArtist.getName())
+    				.setId(relatedArtist.getId())
+    				.setImages(new Image.Builder().setUrl(relatedArtist.getImages()[0].getUrl()).build())
+    				.build();
+    		
+    		relatedArtistToResponse.add(relatedArtistBuilder);
+    		map.put("RelatedArtists", relatedArtistToResponse);
+    	}
+    	return responseEntity(map, id, HttpStatus.OK);
+    }
    
     @GetMapping("/item")
     public ResponseEntity<Map<String,List<Object>>> searchItem(@RequestParam String item) throws ParseException, SpotifyWebApiException, IOException, URISyntaxException, InterruptedException, ExecutionException {
     	
-		
-    
 		return searchItem.searchAnItem(item);
     }
+
+
+
+	@Override
+	public ResponseEntity<Map<String, List<Object>>> responseEntity(Map<String, List<Object>> body,
+			String appendingValue, HttpStatus status) {
+		
+		HttpHeaders headers = new HttpHeaders();
+		headers.setETag("\"" + ComputeEtagValue.computeEtag(appendingValue) + "\"");
+		headers.setCacheControl("must-revalidate, max-age=345600, private");
+		headers.setConnection("Keep-Alive");
+		headers.set("Keep-Alive", "timeout=85");
+		return new ResponseEntity<Map<String, List<Object>>>(body,headers, status);
+	}
     
 
     
