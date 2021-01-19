@@ -65,14 +65,12 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
     	Map<String,List<Object>> map = new HashMap<>();
     	List<Object> albumToResponse = new ArrayList<>();
     	
-    	
 		for (TrackSimplified tracks : response.getTracks().getItems()) {
     		for (ArtistSimplified artists : tracks.getArtists()) {
 				Album albumBuilder = new Album.Builder()
 	    				.setName(response.getName())
 	    				.setId(response.getId())
 	    				.setImages(new com.wrapper.spotify.model_objects.specification.Image.Builder().setUrl(response.getImages()[0].getUrl()).build())
-	    				
 	    				.build();
 		    		
 	    		albumToResponse.add(albumBuilder);
@@ -81,11 +79,36 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
     	}
     	return response;
     }
-    
-//    @GetMapping("//")
-//    public ResponseEntity<Map<String,List<Object>>> search (@RequestParam String id) {
-//    		spotifyConnect.getSpotifyApi().getalbum
-//    }
+
+    @GetMapping("albumTrack")
+    public ResponseEntity<Map<String,List<Object>>> searchAlbumTrack (@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException {
+    	if (request.checkNotModified(ComputeEtagValue.computeEtag(id))) {
+    		return null;
+    	}
+    	
+    	Paging<TrackSimplified> response = spotifyConnect.getSpotifyApi().getAlbumsTracks(id).limit(50).build().execute();
+    	Map<String,List<Object>> map = new HashMap<>();
+    	List<Object> albumTrackToResponse = new ArrayList<>();
+    	
+    	for (TrackSimplified albumTrack : response.getItems()) {
+    		for (ArtistSimplified albumTrackArtist : albumTrack.getArtists()) {
+	    		TrackSimplified albumTrackBuilder = new TrackSimplified.Builder()
+	    				.setName(albumTrack.getName())
+	    				.setId(albumTrack.getId())
+	    				.setDurationMs(albumTrack.getDurationMs())
+	    				.setTrackNumber(albumTrack.getTrackNumber())
+	    				.setArtists(new ArtistSimplified.Builder()
+	    						.setName(albumTrackArtist.getName())
+	    						.setId(albumTrackArtist.getId())
+	    						.build())
+	    				.build();
+	    		
+	    		albumTrackToResponse.add(albumTrackBuilder);
+	    		map.put("AlbumTrack", albumTrackToResponse);
+    		}
+    	}
+    	return responseEntity(map, id, HttpStatus.OK);
+    }// END OF ALBUM ENDPOINT
     
 
     //START OF PLAYLIST ENDPOINT
