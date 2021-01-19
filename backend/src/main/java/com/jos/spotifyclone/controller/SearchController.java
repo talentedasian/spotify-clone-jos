@@ -108,7 +108,7 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
     		}
     	}
     	return responseEntity(map, id, HttpStatus.OK);
-    }// END OF ALBUM ENDPOINT
+    }// END OF ALBUM ENDPOINT	
     
 
     //START OF PLAYLIST ENDPOINT
