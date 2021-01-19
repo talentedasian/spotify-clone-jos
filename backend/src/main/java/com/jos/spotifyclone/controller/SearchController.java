@@ -40,20 +40,12 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
     @Autowired
     public SearchController(SpotifyConnect spotifyConnect, SearchItem searchItem, WebRequest request) {
 		super();
-		// TODO Auto-generated constructor stub
 		this.spotifyConnect = spotifyConnect;
 		this.searchItem = searchItem;
 		this.request = request;
 	}
     
-    
-
-    //TODO ${ARTIST_NAME_HERE} needs value storing elsewhere where this controller can access the search term to return searched for artist data
-    //http://localhost:8080/api/search/artist?id=drake
-    
-
     //START OF ALBUM ENDPOINT
-    //http://localhost:8080/api/search/album?id=arianagrande
     //NOT YET DONE
     @GetMapping("/album")
     public Album searchAlbum (@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException { 
@@ -114,7 +106,7 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
     //START OF PLAYLIST ENDPOINT
     //http://localhost:8080/api/search/playlist?id=bieber
     @GetMapping("/playlist")
-    public ResponseEntity<Map<String, List<Object>>> searchPlaylistController(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException {
+    public ResponseEntity<Map<String, List<Object>>> searchPlaylist(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException {
         if (request.checkNotModified(ComputeEtagValue.computeEtag(id))) {
         	return null;
         } 
@@ -135,7 +127,38 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
         }
         return responseEntity(map, id, HttpStatus.OK);
     }
-
+    
+    @GetMapping("/playlistInfo")
+    public ResponseEntity<Map<String,List<Object>>> searchPlaylistTrack (@RequestParam String id, final Paging.Builder<PlaylistTrack> builder) throws ParseException, SpotifyWebApiException, IOException {
+    	if (request.checkNotModified(ComputeEtagValue.computeEtag(id))) {
+    		return null;
+    	}
+    	
+    	Playlist response = spotifyConnect.getSpotifyApi().getPlaylist(id).build().execute();
+    	Map<String,List<Object>> map = new HashMap<>();
+    	List<Object> playlistInfoToResponse = new ArrayList<>();
+    	
+    	for (PlaylistTrack playlistInfoTrack : response.getTracks().getItems() ) {
+    		PlaylistTrack playlistTrackBuilder= new PlaylistTrack.Builder()
+    				.setTrack(playlistInfoTrack.getTrack())
+    				.build();
+    		PlaylistTrack[] playlistTrack = {playlistTrackBuilder};
+    		
+    		Playlist playlistInfoBuilder = new Playlist.Builder()
+    				.setName(response.getName())
+    				.setId(response.getId())
+    				.setImages(new Image.Builder().setUrl(response.getImages()[0].getUrl()).build())
+    				.setOwner(response.getOwner())
+    				.setFollowers(response.getFollowers())
+    				.setTracks(new Paging.Builder<PlaylistTrack>().setItems(playlistTrack).build())
+    				.build();
+    		
+    		playlistInfoToResponse.add(playlistInfoBuilder);
+    		map.put("PlaylistInfo", playlistInfoToResponse);
+    	}
+    	return responseEntity(map, id, HttpStatus.OK);
+    }
+    
     //START OF ARTIST ENDPOINT
     @GetMapping("/artist")
     public ResponseEntity<Map<String,List<Object>>> searchArtist(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException {
