@@ -71,30 +71,46 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
     //http://localhost:8080/api/search/artist?id=drake
     
 
-//    //http://localhost:8080/api/search/album?id=arianagrande
-//    @GetMapping("/album")
-//    public Map<String, Object> searchAlbumController(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException {
-//        var response = spotifyConnect.getSpotifyApi().searchAlbums(id).build().execute();
-//
-//        List<AlbumModel> list = new ArrayList<>();
-//        for(AlbumSimplified album : response.getItems()){
-//            String name = album.getName();
-//            List<String> artist = new ArrayList<>();
-//            Image[] image = album.getImages();
-//            ExternalUrl externalUrl = album.getExternalUrls();
-//
-//            ArtistSimplified[] artistArray  = album.getArtists();
-//            for(ArtistSimplified artistSimplified : artistArray){
-//                artist.add(artistSimplified.getName());
-//            }
-//            list.add(new AlbumModel(name, artist, image, externalUrl));
-//        }
-//        
-//        Map<String, Object> map = new HashMap<>();
-//        map.put("Album", list);
-//        return map;
+    //START OF ALBUM ENDPOINT
+    //http://localhost:8080/api/search/album?id=arianagrande
+    @GetMapping("/album")
+    public Album searchAlbum (@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException { 
+    	if (request.checkNotModified(ComputeEtagValue.computeEtag(id))) {
+    		return null;
+    	}
+    	
+    	Album response = spotifyConnect.getSpotifyApi().getAlbum(id).build().execute();
+    	Map<String,List<Object>> map = new HashMap<>();
+    	List<Object> albumToResponse = new ArrayList<>();
+    	
+    	
+		for (TrackSimplified tracks : response.getTracks().getItems()) {
+    		for (ArtistSimplified artists : tracks.getArtists()) {
+				Album albumBuilder = new Album.Builder()
+	    				.setName(response.getName())
+	    				.setId(response.getId())
+	    				.setImages(new com.wrapper.spotify.model_objects.specification.Image.Builder().setUrl(response.getImages()[0].getUrl()).build())
+	    				
+	    				.build();
+		    		
+	    		albumToResponse.add(albumBuilder);
+	    		map.put("Album", albumToResponse);
+    		}
+    	}
+    	return response;
+    }
+    
+//    @GetMapping("//")
+//    public ResponseEntity<Map<String,List<Object>>> search (@RequestParam String id) {
+//    		spotifyConnect.getSpotifyApi().getalbum
 //    }
-//
+    
+    
+    
+    
+    
+    
+    
 //    //http://localhost:8080/api/search/episode?id=lauv
 //    @GetMapping("/episode")
 //    public Map<String, Object> searchEpisodeController(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException {
@@ -134,6 +150,7 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
         return map;
     }
 
+    //START OF PLAYLIST ENDPOINT
     //http://localhost:8080/api/search/playlist?id=bieber
     @GetMapping("/playlist")
     public ResponseEntity<Map<String,List<Object>>> searchPlaylistController(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException {
