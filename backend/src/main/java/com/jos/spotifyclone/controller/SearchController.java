@@ -5,45 +5,26 @@ import com.jos.spotifyclone.services.HttpHeadersResponse;
 import com.jos.spotifyclone.services.SearchItem;
 import com.jos.spotifyclone.services.SpotifyConnect;
 import com.neovisionaries.i18n.CountryCode;
-import com.sun.net.httpserver.Headers;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
-import com.wrapper.spotify.exceptions.detailed.BadRequestException;
-import com.wrapper.spotify.model_objects.IPlaylistItem;
 
 import com.jos.spotifyclone.model.*;
-import com.wrapper.spotify.model_objects.miscellaneous.PlaylistTracksInformation;
-import com.wrapper.spotify.model_objects.special.SearchResult;
 import com.wrapper.spotify.model_objects.specification.*;
-import com.wrapper.spotify.model_objects.specification.Artist.Builder;
 
-import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.WebRequest;
 
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.image.ImageObserver;
-import java.awt.image.ImageProducer;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 
 @RequestMapping("api/search")
 @RestController
@@ -73,6 +54,7 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
 
     //START OF ALBUM ENDPOINT
     //http://localhost:8080/api/search/album?id=arianagrande
+    //NOT YET DONE
     @GetMapping("/album")
     public Album searchAlbum (@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException { 
     	if (request.checkNotModified(ComputeEtagValue.computeEtag(id))) {
@@ -105,55 +87,11 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
 //    		spotifyConnect.getSpotifyApi().getalbum
 //    }
     
-    
-    
-    
-    
-    
-    
-//    //http://localhost:8080/api/search/episode?id=lauv
-//    @GetMapping("/episode")
-//    public Map<String, Object> searchEpisodeController(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException {
-//        var response = spotifyConnect.getSpotifyApi().searchEpisodes(id).build().execute();
-//
-//        List<EpisodeModel> list = new ArrayList<>();
-//        for(EpisodeSimplified search : response.getItems()){
-//            String name = search.getName();
-//            String[] language = search.getLanguages();
-//            Image[] images = search.getImages();
-//            ExternalUrl externalUrls = search.getExternalUrls();
-//            String description = search.getDescription();
-//
-//            list.add(new EpisodeModel(name, language, images, externalUrls, description));
-//        }
-//        Map<String, Object> map = new HashMap<>();
-//        map.put("Episode", list);
-//        return map;
-//    }
-
-    //http://localhost:8080/api/search/show?id=bieber
-    @GetMapping("/show")
-    public Map<String, Object> searchShowController(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException {
-        var response = spotifyConnect.getSpotifyApi().searchShows(id).build().execute();
-
-        List<ShowModel> list = new ArrayList<>();
-        for(ShowSimplified show : response.getItems()){
-            String description = show.getDescription();
-            String name = show.getName();
-            ExternalUrl externalUrls = show.getExternalUrls();
-
-            list.add(new ShowModel(description, name, externalUrls));
-        }
-
-        Map<String, Object> map = new HashMap<>();
-        map.put("Show", list);
-        return map;
-    }
 
     //START OF PLAYLIST ENDPOINT
     //http://localhost:8080/api/search/playlist?id=bieber
     @GetMapping("/playlist")
-    public ResponseEntity<Map<String,List<Object>>> searchPlaylistController(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException {
+    public ResponseEntity<Map<String, List<Object>>> searchPlaylistController(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException {
         if (request.checkNotModified(ComputeEtagValue.computeEtag(id))) {
         	return null;
         } 
