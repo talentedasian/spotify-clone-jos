@@ -14,6 +14,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import com.wrapper.spotify.exceptions.detailed.BadRequestException;
+import com.wrapper.spotify.exceptions.detailed.UnauthorizedException;
 
 @ControllerAdvice
 public class BadRequestExceptionHandling extends ResponseEntityExceptionHandler {
@@ -27,6 +28,15 @@ public class BadRequestExceptionHandling extends ResponseEntityExceptionHandler 
 		body.put("Status", "400");
 		body.put("Reason", "Bad Query Paramaters");
 		return handleExceptionInternal(ex, body, new HttpHeaders(), HttpStatus.BAD_REQUEST, req);
+	}
+	
+	@ExceptionHandler(UnauthorizedException.class)
+	@ResponseBody
+	public ResponseEntity<Object> unAuthorized (UnauthorizedException ex, WebRequest req) {
+		Map<String,String> body = new HashMap<>();
+		body.put("Status", "401");
+		body.put("Reason", "Invalid Access Token");
+		return handleExceptionInternal(ex, body, new HttpHeaders(), HttpStatus.UNAUTHORIZED, req);
 	}
 	
 	
