@@ -7,7 +7,6 @@ import com.jos.spotifyclone.services.SpotifyConnect;
 import com.neovisionaries.i18n.CountryCode;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 
-import com.jos.spotifyclone.model.*;
 import com.wrapper.spotify.model_objects.specification.*;
 
 import org.apache.hc.core5.http.ParseException;
@@ -21,13 +20,11 @@ import org.springframework.web.context.request.WebRequest;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 @RequestMapping("api/search")
 @RestController
@@ -65,7 +62,12 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
 				Album albumBuilder = new Album.Builder()
 	    				.setName(response.getName())
 	    				.setId(response.getId())
+	    				.setArtists(new ArtistSimplified.Builder()
+	    						.setName(artists.getName())
+	    						.setId(artists.getId())
+	    						.build())
 	    				.setImages(new com.wrapper.spotify.model_objects.specification.Image.Builder().setUrl(response.getImages()[0].getUrl()).build())
+	    				.setReleaseDate(response.getReleaseDate())
 	    				.build();
 		    		
 	    		albumToResponse.add(albumBuilder);

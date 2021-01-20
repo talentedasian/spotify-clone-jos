@@ -1,15 +1,8 @@
 package com.jos.spotifyclone.controller;
 
-import com.jos.spotifyclone.model.AlbumModel;
-import com.jos.spotifyclone.model.ArtistModel;
-import com.jos.spotifyclone.model.EpisodeModel;
-import com.jos.spotifyclone.model.TrackModel;
-import com.jos.spotifyclone.services.ComputeEtagValue;
 import com.jos.spotifyclone.services.HttpHeadersResponse;
 import com.jos.spotifyclone.services.SpotifyConnect;
-import com.neovisionaries.i18n.CountryCode;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
-import com.wrapper.spotify.model_objects.special.SearchResult;
 import com.wrapper.spotify.model_objects.specification.*;
 import org.apache.hc.core5.http.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +20,6 @@ import org.springframework.web.context.request.WebRequest;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RequestMapping("api/browse")
 @RestController
