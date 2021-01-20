@@ -27,7 +27,7 @@ public class ServletRequestFilter implements Filter{
 		HttpServletResponse res = (HttpServletResponse) response;
 		
 		res.addHeader("Authorization", "Bearer " + spotifyConnect.getSpotifyApi().getAccessToken());
-		
+		res.setHeader("Keep-Alive", "timeout=120");
 		chain.doFilter(req, res);
 	}
 

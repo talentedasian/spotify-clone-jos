@@ -12,6 +12,7 @@ import com.wrapper.spotify.model_objects.specification.*;
 
 import org.apache.hc.core5.http.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,11 +21,13 @@ import org.springframework.web.context.request.WebRequest;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 @RequestMapping("api/search")
 @RestController
@@ -137,7 +140,6 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
     	Playlist response = spotifyConnect.getSpotifyApi().getPlaylist(id).build().execute();
     	Map<String,List<Object>> map = new HashMap<>();
     	List<Object> playlistInfoToResponse = new ArrayList<>();
-    	
     	for (PlaylistTrack playlistInfoTrack : response.getTracks().getItems() ) {
     		PlaylistTrack playlistTrackBuilder= new PlaylistTrack.Builder()
     				.setTrack(playlistInfoTrack.getTrack())
@@ -166,23 +168,21 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
     		return null;
     	}
     	
-    	Paging<Artist> response = spotifyConnect.getSpotifyApi().searchArtists(id).limit(1).build().execute();
+    	Artist response = spotifyConnect.getSpotifyApi().getArtist(id).build().execute();
         Map<String, List<Object>> map = new HashMap<>();
         List<Object> artistToResponse = new ArrayList<>();
-        for(Artist artist : response.getItems()){
-    		Artist artistBuilder = new Artist.Builder()
-    				.setName(artist.getName())
-    				.setId(artist.getId())
-    				.setImages(new com.wrapper.spotify.model_objects.specification.Image.Builder()
-    						.setUrl(artist.getImages()[0].getUrl())
-    						.build())
-    				.setFollowers(artist.getFollowers())
-    				.setPopularity(artist.getPopularity())
-    				.build();
-        	
-        	artistToResponse.add(artistBuilder);
-        	map.put("Artist", artistToResponse);
-        }	
+		Artist artistBuilder = new Artist.Builder()
+				.setName(response.getName())
+				.setId(response.getId())
+				.setImages(new com.wrapper.spotify.model_objects.specification.Image.Builder()
+						.setUrl(response.getImages()[0].getUrl())
+						.build())
+				.setFollowers(response.getFollowers())
+				.setPopularity(response.getPopularity())
+				.build();
+    	
+    	artistToResponse.add(artistBuilder);
+    	map.put("Artist", artistToResponse);
         return responseEntity(map, id, HttpStatus.OK);
     }
     
@@ -270,21 +270,19 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
     
     @GetMapping("/item")
     public ResponseEntity<Map<String,List<Object>>> searchItem(@RequestParam String item) throws ParseException, SpotifyWebApiException, IOException, URISyntaxException, InterruptedException, ExecutionException {
+    	Map<String, List<Object>> map = searchItem.searchAnItem(item).getBody();
+    	HttpHeaders headers = new HttpHeaders();
+    	headers.setCacheControl(CacheControl.noStore());
     	
-		return searchItem.searchAnItem(item);
+		return new ResponseEntity<Map<String,List<Object>>>(map, headers, HttpStatus.OK);
     }
-
-
-
 	@Override
 	public ResponseEntity<Map<String, List<Object>>> responseEntity(Map<String, List<Object>> body,
 			String appendingValue, HttpStatus status) {
-		
 		HttpHeaders headers = new HttpHeaders();
 		headers.setETag("\"" + ComputeEtagValue.computeEtag(appendingValue) + "\"");
 		headers.setCacheControl("must-revalidate, max-age=345600, private");
-		headers.setConnection("Keep-Alive");
-		headers.set("Keep-Alive", "timeout=85");
+		
 		return new ResponseEntity<Map<String, List<Object>>>(body,headers, status);
 	}
     
