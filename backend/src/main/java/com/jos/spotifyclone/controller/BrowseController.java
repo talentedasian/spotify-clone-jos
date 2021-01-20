@@ -47,7 +47,7 @@ public class BrowseController implements HttpHeadersResponse<Map<String,List<Obj
     @GetMapping("/new-releases")
     @Cacheable
     public ResponseEntity<Map<String,List<Object>>> newReleases() throws ParseException, SpotifyWebApiException, IOException {
-    	Paging<AlbumSimplified> response = spotifyConnect.getSpotifyApi().getListOfNewReleases().build().execute();
+    	Paging<AlbumSimplified> response = spotifyConnect.getSpotifyApi().getListOfNewReleases()..build().execute();
 
         Map<String,List<Object>> map = new HashMap<>();
         List<Object> newReleaseseToResponse = new ArrayList<>();
@@ -70,8 +70,6 @@ public class BrowseController implements HttpHeadersResponse<Map<String,List<Obj
 		HttpHeaders headers = new HttpHeaders();
 		headers.setCacheControl(CacheControl.noStore().sMaxAge(Duration.ZERO));
 		headers.setConnection("Keep-Alive");
-		headers.add("Keep-Alive", "timeout=140");
-		
 		
 		return new ResponseEntity<Map<String,List<Object>>>(body, headers, status);
 	}

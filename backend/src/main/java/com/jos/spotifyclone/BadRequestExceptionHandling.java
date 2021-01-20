@@ -45,8 +45,8 @@ public class BadRequestExceptionHandling extends ResponseEntityExceptionHandler 
 	public ResponseEntity<Object> notFound (NotFoundException ex, WebRequest req) {
 		Map<String,String> body = new HashMap<>();
 		body.put("Status", "400");
-		body.put("Reason", "Query Parameters Not Found");
-		return handleExceptionInternal(ex, body, new HttpHeaders(), HttpStatus.BAD_REQUEST, req);
+		body.put("Reason", "Query Parameter Found No Resource");
+		return handleExceptionInternal(ex, body, new HttpHeaders(), HttpStatus.NOT_FOUND, req);
 	}
 
 }
