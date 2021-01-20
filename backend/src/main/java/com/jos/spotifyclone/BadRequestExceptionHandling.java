@@ -14,6 +14,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import com.wrapper.spotify.exceptions.detailed.BadRequestException;
+import com.wrapper.spotify.exceptions.detailed.NotFoundException;
 import com.wrapper.spotify.exceptions.detailed.UnauthorizedException;
 
 @ControllerAdvice
@@ -39,5 +40,13 @@ public class BadRequestExceptionHandling extends ResponseEntityExceptionHandler 
 		return handleExceptionInternal(ex, body, new HttpHeaders(), HttpStatus.UNAUTHORIZED, req);
 	}
 	
-	
+	@ExceptionHandler(NotFoundException.class)
+	@ResponseBody
+	public ResponseEntity<Object> notFound (NotFoundException ex, WebRequest req) {
+		Map<String,String> body = new HashMap<>();
+		body.put("Status", "400");
+		body.put("Reason", "Query Parameters Not Found");
+		return handleExceptionInternal(ex, body, new HttpHeaders(), HttpStatus.BAD_REQUEST, req);
+	}
+
 }
