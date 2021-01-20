@@ -48,7 +48,7 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
     //START OF ALBUM ENDPOINT
     //NOT YET DONE
     @GetMapping("/album")
-    public Album searchAlbum (@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException { 
+    public ResponseEntity<Map<String,List<Object>>> searchAlbum (@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException { 
     	if (request.checkNotModified(ComputeEtagValue.computeEtag(id))) {
     		return null;
     	}
@@ -71,10 +71,10 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
 	    				.build();
 		    		
 	    		albumToResponse.add(albumBuilder);
-	    		map.put("Album", albumToResponse);
     		}
-    	}
-    	return response;
+		}
+		map.put("Album", albumToResponse);
+    	return responseEntity(map, id, HttpStatus.OK);
     }
 
     @GetMapping("albumTrack")
@@ -101,9 +101,9 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
 	    				.build();
 	    		
 	    		albumTrackToResponse.add(albumTrackBuilder);
-	    		map.put("AlbumTrack", albumTrackToResponse);
     		}
     	}
+    	map.put("AlbumTrack", albumTrackToResponse);
     	return responseEntity(map, id, HttpStatus.OK);
     }// END OF ALBUM ENDPOINT	
     
@@ -128,8 +128,8 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
         					.build())
     				.build();
 			playlistToResponse.add(playlistBuilder);
-			map.put("Playlist", playlistToResponse);
         }
+        map.put("Playlist", playlistToResponse);
         return responseEntity(map, id, HttpStatus.OK);
     }
     
@@ -158,8 +158,8 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
     				.build();
     		
     		playlistInfoToResponse.add(playlistInfoBuilder);
-    		map.put("PlaylistInfo", playlistInfoToResponse);
     	}
+    	map.put("PlaylistInfo", playlistInfoToResponse);
     	return responseEntity(map, id, HttpStatus.OK);
     }
     
@@ -207,8 +207,8 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
     				.build();
     		
     		relatedArtistToResponse.add(relatedArtistBuilder);
-    		map.put("RelatedArtists", relatedArtistToResponse);
     	}
+    	map.put("RelatedArtists", relatedArtistToResponse);
     	return responseEntity(map, id, HttpStatus.OK);
     }
     
@@ -236,19 +236,19 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
 						.build();
 				
 	    		artistTopTrackToResponse.add(artistTopTrackBuilder);
-	    		map.put("ArtistTopTrack", artistTopTrackToResponse);
     		}
     	}
+    	map.put("ArtistTopTrack", artistTopTrackToResponse);
     	return responseEntity(map, id, HttpStatus.OK);
     }
     
     @GetMapping("/artistAlbum")
-    public Paging<AlbumSimplified> searchArtistAlbum(@RequestParam String id, @RequestParam int limit) throws ParseException, SpotifyWebApiException, IOException, URISyntaxException, InterruptedException, ExecutionException {
+    public ResponseEntity<Map<String,List<Object>>> searchArtistAlbum(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException, URISyntaxException, InterruptedException, ExecutionException {
     	if (request.checkNotModified(ComputeEtagValue.computeEtag(id))) {
     		return null;
     	}
     	
-    	Paging<AlbumSimplified> response = spotifyConnect.getSpotifyApi().getArtistsAlbums(id).limit(limit).build().execute();
+    	Paging<AlbumSimplified> response = spotifyConnect.getSpotifyApi().getArtistsAlbums(id).limit(10).build().execute();
     	Map<String,List<Object>> map = new HashMap<>();
     	List<Object> artistAlbumToResponse = new ArrayList<>();
     	for (AlbumSimplified artistAlbum : response.getItems()) {
@@ -263,10 +263,10 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
 	    				.build();
 	    		
 	    		artistAlbumToResponse.add(artistAlbumBuilder);
-	    		map.put("ArtistAlbum", artistAlbumToResponse);
     		}
     	}
-    	return response;
+    	map.put("ArtistAlbum", artistAlbumToResponse);
+    	return responseEntity(map, id, HttpStatus.OK);
     }//END OF ARTIST ENDPOINT
    
     
