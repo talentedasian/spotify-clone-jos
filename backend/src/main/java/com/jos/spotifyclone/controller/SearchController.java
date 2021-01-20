@@ -33,10 +33,7 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
     private SpotifyConnect spotifyConnect;
     private SearchItem searchItem;
     private WebRequest request;
-
-	
-	
-	
+    
     @Autowired
     public SearchController(SpotifyConnect spotifyConnect, SearchItem searchItem, WebRequest request) {
 		super();
@@ -59,7 +56,7 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
     	
 		for (TrackSimplified tracks : response.getTracks().getItems()) {
     		for (ArtistSimplified artists : tracks.getArtists()) {
-				Album albumBuilder = new Album.Builder()
+				var albumBuilder = new Album.Builder()
 	    				.setName(response.getName())
 	    				.setId(response.getId())
 	    				.setArtists(new ArtistSimplified.Builder()
@@ -89,7 +86,7 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
     	
     	for (TrackSimplified albumTrack : response.getItems()) {
     		for (ArtistSimplified albumTrackArtist : albumTrack.getArtists()) {
-	    		TrackSimplified albumTrackBuilder = new TrackSimplified.Builder()
+	    		var albumTrackBuilder = new TrackSimplified.Builder()
 	    				.setName(albumTrack.getName())
 	    				.setId(albumTrack.getId())
 	    				.setDurationMs(albumTrack.getDurationMs())
@@ -120,7 +117,7 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
         Map<String,List<Object>> map = new HashMap<>();
         List<Object> playlistToResponse = new ArrayList<>();
         for (PlaylistSimplified playlist : response.getItems()) {
-        	PlaylistSimplified playlistBuilder = new PlaylistSimplified.Builder()
+        	var playlistBuilder = new PlaylistSimplified.Builder()
         			.setName(playlist.getName())
         			.setId(playlist.getId())
         			.setImages(new com.wrapper.spotify.model_objects.specification.Image.Builder()
@@ -143,12 +140,12 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
     	Map<String,List<Object>> map = new HashMap<>();
     	List<Object> playlistInfoToResponse = new ArrayList<>();
     	for (PlaylistTrack playlistInfoTrack : response.getTracks().getItems() ) {
-    		PlaylistTrack playlistTrackBuilder= new PlaylistTrack.Builder()
+    		var playlistTrackBuilder= new PlaylistTrack.Builder()
     				.setTrack(playlistInfoTrack.getTrack())
     				.build();
     		PlaylistTrack[] playlistTrack = {playlistTrackBuilder};
     		
-    		Playlist playlistInfoBuilder = new Playlist.Builder()
+    		var playlistInfoBuilder = new Playlist.Builder()
     				.setName(response.getName())
     				.setId(response.getId())
     				.setImages(new Image.Builder().setUrl(response.getImages()[0].getUrl()).build())
@@ -173,7 +170,7 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
     	Artist response = spotifyConnect.getSpotifyApi().getArtist(id).build().execute();
         Map<String, List<Object>> map = new HashMap<>();
         List<Object> artistToResponse = new ArrayList<>();
-		Artist artistBuilder = new Artist.Builder()
+		var artistBuilder = new Artist.Builder()
 				.setName(response.getName())
 				.setId(response.getId())
 				.setImages(new com.wrapper.spotify.model_objects.specification.Image.Builder()
@@ -198,7 +195,7 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
     	Map<String,List<Object>> map = new HashMap<>();
 		List<Object> relatedArtistToResponse = new ArrayList<>();
     	for (Artist relatedArtist : response) {
-    		Artist relatedArtistBuilder = new Artist.Builder()
+    		var relatedArtistBuilder = new Artist.Builder()
     				.setName(relatedArtist.getName())
     				.setId(relatedArtist.getId())
     				.setImages(new com.wrapper.spotify.model_objects.specification.Image.Builder()
@@ -223,7 +220,7 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
     	List<Object> artistTopTrackToResponse = new ArrayList<>();
     	for (Track artistTopTrack : response) {
     		for (ArtistSimplified artistTopTrackArtist : artistTopTrack.getArtists()) {
-	    		Track artistTopTrackBuilder = new Track.Builder()
+	    		var artistTopTrackBuilder = new Track.Builder()
 	    				.setName(artistTopTrack.getName())
 	    				.setId(artistTopTrack.getId())
 	    				.setAlbum(new AlbumSimplified.Builder()
@@ -253,7 +250,7 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
     	List<Object> artistAlbumToResponse = new ArrayList<>();
     	for (AlbumSimplified artistAlbum : response.getItems()) {
     		for (ArtistSimplified artistAlbumArtist : artistAlbum.getArtists()) {
-	    		AlbumSimplified artistAlbumBuilder = new AlbumSimplified.Builder()
+	    		var artistAlbumBuilder = new AlbumSimplified.Builder()
 	    				.setName(artistAlbum.getName())
 	    				.setId(artistAlbum.getId())
 	    				.setArtists(new ArtistSimplified.Builder()
@@ -273,7 +270,7 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
     @GetMapping("/item")
     public ResponseEntity<Map<String,List<Object>>> searchItem(@RequestParam String item) throws ParseException, SpotifyWebApiException, IOException, URISyntaxException, InterruptedException, ExecutionException {
     	Map<String, List<Object>> map = searchItem.searchAnItem(item).getBody();
-    	HttpHeaders headers = new HttpHeaders();
+    	var headers = new HttpHeaders();
     	headers.setCacheControl(CacheControl.noStore());
     	
 		return new ResponseEntity<Map<String,List<Object>>>(map, headers, HttpStatus.OK);
@@ -281,7 +278,7 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
 	@Override
 	public ResponseEntity<Map<String, List<Object>>> responseEntity(Map<String, List<Object>> body,
 			String appendingValue, HttpStatus status) {
-		HttpHeaders headers = new HttpHeaders();
+		var headers = new HttpHeaders();
 		headers.setETag("\"" + ComputeEtagValue.computeEtag(appendingValue) + "\"");
 		headers.setCacheControl("must-revalidate, max-age=345600, private");
 		

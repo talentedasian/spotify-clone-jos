@@ -47,12 +47,12 @@ public class BrowseController implements HttpHeadersResponse<Map<String,List<Obj
     @GetMapping("/new-releases")
     @Cacheable
     public ResponseEntity<Map<String,List<Object>>> newReleases() throws ParseException, SpotifyWebApiException, IOException {
-    	Paging<AlbumSimplified> response = spotifyConnect.getSpotifyApi().getListOfNewReleases()..build().execute();
+    	Paging<AlbumSimplified> response = spotifyConnect.getSpotifyApi().getListOfNewReleases().build().execute();
 
         Map<String,List<Object>> map = new HashMap<>();
         List<Object> newReleaseseToResponse = new ArrayList<>();
         for(AlbumSimplified album : response.getItems()){
-        	AlbumSimplified albumBuilder = new AlbumSimplified.Builder()
+        	var albumBuilder = new AlbumSimplified.Builder()
         			.setName(album.getName())
         			.setId(album.getId())
         			.setImages(new Image.Builder().setUrl(album.getImages()[0].getUrl()).build())
@@ -67,7 +67,7 @@ public class BrowseController implements HttpHeadersResponse<Map<String,List<Obj
 	@Override
 	public ResponseEntity<Map<String, List<Object>>> responseEntity(Map<String, List<Object>> body,
 			String appendingValue, HttpStatus status) {
-		HttpHeaders headers = new HttpHeaders();
+		var headers = new HttpHeaders();
 		headers.setCacheControl(CacheControl.noStore().sMaxAge(Duration.ZERO));
 		headers.setConnection("Keep-Alive");
 		
