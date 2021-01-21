@@ -1,8 +1,5 @@
 package com.jos.spotifyclone.services;
 
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.http.ResponseEntity;
 
 public interface HttpHeadersResponse<T> {
