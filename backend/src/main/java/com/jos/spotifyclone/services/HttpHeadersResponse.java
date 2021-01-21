@@ -7,6 +7,6 @@ import org.springframework.http.ResponseEntity;
 
 public interface HttpHeadersResponse<T> {
 	
-	public ResponseEntity<T> responseEntity (Map<String,List<Object>> body, String appendingValue, org.springframework.http.HttpStatus status);
+	public ResponseEntity<T> responseEntity (T body, String appendingValue, org.springframework.http.HttpStatus status);
 		
 }

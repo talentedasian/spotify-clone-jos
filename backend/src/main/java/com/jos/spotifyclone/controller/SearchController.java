@@ -28,7 +28,7 @@ import java.util.concurrent.ExecutionException;
 
 @RequestMapping("api/search")
 @RestController
-public class SearchController implements HttpHeadersResponse<Map<String,List<Object>>>{
+public class SearchController implements HttpHeadersResponse<Object>{
 
     private SpotifyConnect spotifyConnect;
     private SearchItem searchItem;
@@ -45,7 +45,7 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
     //START OF ALBUM ENDPOINT
     //NOT YET DONE
     @GetMapping("/album")
-    public ResponseEntity<Map<String,List<Object>>> searchAlbum (@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException { 
+    public ResponseEntity<Object> searchAlbum (@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException { 
     	if (request.checkNotModified(ComputeEtagValue.computeEtag(id))) {
     		return null;
     	}
@@ -75,7 +75,7 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
     }
 
     @GetMapping("albumTrack")
-    public ResponseEntity<Map<String,List<Object>>> searchAlbumTrack (@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException {
+    public ResponseEntity<Object> searchAlbumTrack (@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException {
     	if (request.checkNotModified(ComputeEtagValue.computeEtag(id))) {
     		return null;
     	}
@@ -108,7 +108,7 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
     //START OF PLAYLIST ENDPOINT
     //http://localhost:8080/api/search/playlist?id=bieber
     @GetMapping("/playlist")
-    public ResponseEntity<Map<String, List<Object>>> searchPlaylist(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException {
+    public ResponseEntity<Object> searchPlaylist(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException {
         if (request.checkNotModified(ComputeEtagValue.computeEtag(id))) {
         	return null;
         } 
@@ -131,13 +131,12 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
     }
     
     @GetMapping("/playlistInfo")
-    public ResponseEntity<Map<String,List<Object>>> searchPlaylistTrack (@RequestParam String id, final Paging.Builder<PlaylistTrack> builder) throws ParseException, SpotifyWebApiException, IOException {
+    public ResponseEntity<Object> searchPlaylistTrack (@RequestParam String id, final Paging.Builder<PlaylistTrack> builder) throws ParseException, SpotifyWebApiException, IOException {
     	if (request.checkNotModified(ComputeEtagValue.computeEtag(id))) {
     		return null;
     	}
     	
     	Playlist response = spotifyConnect.getSpotifyApi().getPlaylist(id).build().execute();
-    	Map<String,List<Object>> map = new HashMap<>();
     	List<Object> playlistInfoToResponse = new ArrayList<>();
     	for (PlaylistTrack playlistInfoTrack : response.getTracks().getItems() ) {
     		var playlistTrackBuilder= new PlaylistTrack.Builder()
@@ -156,19 +155,18 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
     		
     		playlistInfoToResponse.add(playlistInfoBuilder);
     	}
-    	map.put("PlaylistInfo", playlistInfoToResponse);
-    	return responseEntity(map, id, HttpStatus.OK);
+    	
+    	return responseEntity(playlistInfoToResponse, id, HttpStatus.OK);
     }
     
     //START OF ARTIST ENDPOINT
     @GetMapping("/artist")
-    public ResponseEntity<Map<String,List<Object>>> searchArtist(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException {
+    public ResponseEntity<Object> searchArtist(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException {
     	if (request.checkNotModified(ComputeEtagValue.computeEtag(id))) {
     		return null;
     	}
     	
     	Artist response = spotifyConnect.getSpotifyApi().getArtist(id).build().execute();
-        Map<String, List<Object>> map = new HashMap<>();
         List<Object> artistToResponse = new ArrayList<>();
 		var artistBuilder = new Artist.Builder()
 				.setName(response.getName())
@@ -181,18 +179,16 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
 				.build();
     	
     	artistToResponse.add(artistBuilder);
-    	map.put("Artist", artistToResponse);
-        return responseEntity(map, id, HttpStatus.OK);
+        return responseEntity(artistToResponse, id, HttpStatus.OK);
     }
     
     @GetMapping("/relatedArtist")
-    public ResponseEntity<Map<String,List<Object>>> searchRelatedArtist(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException, URISyntaxException, InterruptedException, ExecutionException { 
+    public ResponseEntity<Object> searchRelatedArtist(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException, URISyntaxException, InterruptedException, ExecutionException { 
     	if (request.checkNotModified(ComputeEtagValue.computeEtag(id))) {
     		return null;
     	} 
     	
     	Artist[] response = spotifyConnect.getSpotifyApi().getArtistsRelatedArtists(id).build().execute();
-    	Map<String,List<Object>> map = new HashMap<>();
 		List<Object> relatedArtistToResponse = new ArrayList<>();
     	for (Artist relatedArtist : response) {
     		var relatedArtistBuilder = new Artist.Builder()
@@ -205,18 +201,16 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
     		
     		relatedArtistToResponse.add(relatedArtistBuilder);
     	}
-    	map.put("RelatedArtists", relatedArtistToResponse);
-    	return responseEntity(map, id, HttpStatus.OK);
+    	return responseEntity(relatedArtistToResponse, id, HttpStatus.OK);
     }
     
     @GetMapping("/artistTopTrack")
-    public ResponseEntity<Map<String,List<Object>>> searchArtistTopTrack(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException, URISyntaxException, InterruptedException, ExecutionException {
+    public ResponseEntity<Object> searchArtistTopTrack(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException, URISyntaxException, InterruptedException, ExecutionException {
     	if (request.checkNotModified(ComputeEtagValue.computeEtag(id))) {
     		return null;
     	}
     	
     	Track[] response = spotifyConnect.getSpotifyApi().getArtistsTopTracks(id, CountryCode.US).build().execute();
-    	Map<String,List<Object>> map = new HashMap<>();
     	List<Object> artistTopTrackToResponse = new ArrayList<>();
     	for (Track artistTopTrack : response) {
     		for (ArtistSimplified artistTopTrackArtist : artistTopTrack.getArtists()) {
@@ -235,18 +229,16 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
 	    		artistTopTrackToResponse.add(artistTopTrackBuilder);
     		}
     	}
-    	map.put("ArtistTopTrack", artistTopTrackToResponse);
-    	return responseEntity(map, id, HttpStatus.OK);
+    	return responseEntity(artistTopTrackToResponse, id, HttpStatus.OK);
     }
     
     @GetMapping("/artistAlbum")
-    public ResponseEntity<Map<String,List<Object>>> searchArtistAlbum(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException, URISyntaxException, InterruptedException, ExecutionException {
+    public ResponseEntity<Object> searchArtistAlbum(@RequestParam String id) throws ParseException, SpotifyWebApiException, IOException, URISyntaxException, InterruptedException, ExecutionException {
     	if (request.checkNotModified(ComputeEtagValue.computeEtag(id))) {
     		return null;
     	}
     	
     	Paging<AlbumSimplified> response = spotifyConnect.getSpotifyApi().getArtistsAlbums(id).limit(10).build().execute();
-    	Map<String,List<Object>> map = new HashMap<>();
     	List<Object> artistAlbumToResponse = new ArrayList<>();
     	for (AlbumSimplified artistAlbum : response.getItems()) {
     		for (ArtistSimplified artistAlbumArtist : artistAlbum.getArtists()) {
@@ -262,8 +254,7 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
 	    		artistAlbumToResponse.add(artistAlbumBuilder);
     		}
     	}
-    	map.put("ArtistAlbum", artistAlbumToResponse);
-    	return responseEntity(map, id, HttpStatus.OK);
+    	return responseEntity(artistAlbumToResponse, id, HttpStatus.OK);
     }//END OF ARTIST ENDPOINT
    
     
@@ -276,13 +267,13 @@ public class SearchController implements HttpHeadersResponse<Map<String,List<Obj
 		return new ResponseEntity<Map<String,List<Object>>>(map, headers, HttpStatus.OK);
     }
 	@Override
-	public ResponseEntity<Map<String, List<Object>>> responseEntity(Map<String, List<Object>> body,
+	public ResponseEntity<Object> responseEntity (Object body,
 			String appendingValue, HttpStatus status) {
 		var headers = new HttpHeaders();
 		headers.setETag("\"" + ComputeEtagValue.computeEtag(appendingValue) + "\"");
 		headers.setCacheControl("must-revalidate, max-age=345600, private");
 		
-		return new ResponseEntity<Map<String, List<Object>>>(body,headers, status);
+		return new ResponseEntity<Object>(body,headers, status);
 	}
     
 
