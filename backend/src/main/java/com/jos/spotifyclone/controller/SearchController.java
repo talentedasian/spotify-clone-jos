@@ -272,7 +272,7 @@ public class SearchController implements HttpHeadersResponse<Object>{
 		var headers = new HttpHeaders();
 		
 		if (appendingValue == null) {
-			headers.setCacheControl(CacheControl.noCache());
+			headers.setCacheControl(CacheControl.noStore());
 			return new ResponseEntity<Object>(body, headers, status);
 		}
 		
