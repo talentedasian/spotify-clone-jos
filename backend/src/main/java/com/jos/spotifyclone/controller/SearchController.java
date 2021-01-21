@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 @RequestMapping("api/search")
 @RestController
@@ -259,22 +260,29 @@ public class SearchController implements HttpHeadersResponse<Object>{
    
     
     @GetMapping("/item")
-    public ResponseEntity<Map<String,List<Object>>> searchItem(@RequestParam String item) throws ParseException, SpotifyWebApiException, IOException, URISyntaxException, InterruptedException, ExecutionException {
+    public ResponseEntity<Object> searchItem(@RequestParam String item) throws ParseException, SpotifyWebApiException, IOException, URISyntaxException, InterruptedException, ExecutionException {
     	Map<String, List<Object>> map = searchItem.searchAnItem(item).getBody();
-    	var headers = new HttpHeaders();
-    	headers.setCacheControl(CacheControl.noStore());
     	
-		return new ResponseEntity<Map<String,List<Object>>>(map, headers, HttpStatus.OK);
+		return responseEntity(map, null, HttpStatus.OK);
     }
+    
 	@Override
 	public ResponseEntity<Object> responseEntity (Object body,
 			String appendingValue, HttpStatus status) {
 		var headers = new HttpHeaders();
+		
+		if (appendingValue == null) {
+			headers.setCacheControl(CacheControl.noCache());
+			return new ResponseEntity<Object>(body, headers, status);
+		}
+		
 		headers.setETag("\"" + ComputeEtagValue.computeEtag(appendingValue) + "\"");
 		headers.setCacheControl("must-revalidate, max-age=345600, private");
 		
 		return new ResponseEntity<Object>(body,headers, status);
 	}
+
+	
     
 
     

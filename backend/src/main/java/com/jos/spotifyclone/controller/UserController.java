@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 @RequestMapping("api/user")
 @RestController
-public class UserController implements HttpHeadersResponse<Map<String,List<Object>>>{
+public class UserController implements HttpHeadersResponse<Object>{
 
 
     private final SpotifyConnect spotifyConnect;
@@ -387,49 +387,23 @@ public class UserController implements HttpHeadersResponse<Map<String,List<Objec
 
     //TODO fix so it works with getUsersTopArtistsAndTracks method
     @GetMapping("/top-artists-and-tracks")
-    public Map<String, Object> getTopArtistsAndTracks() throws ParseException, SpotifyWebApiException, IOException {
-        var responseArtist = spotifyConnect.getSpotifyApi().getUsersTopArtists().build().execute();
-        List<ArtistModel> artistModels = new ArrayList<>();
+    public ResponseEntity<Object> getUsersTopArtist() throws ParseException, SpotifyWebApiException, IOException {
+        Paging<Artist> responseArtist = spotifyConnect.getSpotifyApi().getUsersTopArtists().build().execute();
+        List<Object> usersTopArtistToResponse = new ArrayList<>();
+        
         for(Artist artist : responseArtist.getItems()){
-            ExternalUrl externalUrl = artist.getExternalUrls();
-            Followers followers = artist.getFollowers();
-            String[] genres = artist.getGenres();
-            Image[] images = artist.getImages();
-            String artistName = artist.getName();
-
-            artistModels.add(new ArtistModel(externalUrl, followers, genres, images, artistName));
+        	var usersTopArtistBuilder = new Artist.Builder()
+        			.setName(artist.getName())
+        			.setId(artist.getId())
+        			.setImages(new Image.Builder()
+        					.setUrl(artist.getImages()[0].getUrl())
+        					.build())
+        			.setPopularity(artist.getPopularity())
+        			.build();
+        	
+        	usersTopArtistToResponse.add(usersTopArtistBuilder);
         }
-
-        var responseTracks = spotifyConnect.getSpotifyApi().getUsersTopTracks().build().execute();
-        List<TrackModel> trackModels = new ArrayList<>();
-        for(Track track : responseTracks.getItems()){
-            String name = track.getName();
-            ExternalUrl externalUrls = track.getExternalUrls();
-
-            List<String> artistsList = new ArrayList<>();
-            ArtistSimplified[] artistsTracks = track.getArtists();
-            for(ArtistSimplified artistSimplified : artistsTracks){
-                artistsList.add(artistSimplified.getName());
-            }
-
-            List<AlbumModel> albumsList = new ArrayList<>();
-            AlbumSimplified albums = track.getAlbum();
-            String nameAlbum = albums.getName();
-            Image[] imageAlbum = albums.getImages();
-            ExternalUrl externalUrlAlbum = albums.getExternalUrls();
-            List<String> artistsOfAlbumList = new ArrayList<>();
-            ArtistSimplified[] artistsOfAlbum = albums.getArtists();
-            for(ArtistSimplified artistSimplified : artistsOfAlbum){
-                artistsOfAlbumList.add(artistSimplified.getName());
-            }
-            albumsList.add(new AlbumModel(nameAlbum, artistsOfAlbumList, imageAlbum, externalUrlAlbum));
-
-            trackModels.add(new TrackModel(name, externalUrls, artistsList, albumsList));
-        }
-        Map<String, Object> map = new HashMap<>();
-        map.put("Top artists", artistModels);
-        map.put("Top tracks", trackModels);
-        return map;
+        return 
     }
 
     //http://localhost:8080/api/user/get-list-of-playlists-from?user_id=hrn1isdy2ia8q7wfb1ew2fah6
@@ -453,14 +427,21 @@ public class UserController implements HttpHeadersResponse<Map<String,List<Objec
     }
 
 	@Override
-	public ResponseEntity<Map<String, List<Object>>> responseEntity(Map<String, List<Object>> body,
+	public ResponseEntity<Object> responseEntity(Object body,
 			String appendingValue, HttpStatus status) {
-		HttpHeaders headers = new HttpHeaders();
+		var headers = new HttpHeaders();
+		
+		if (appendingValue == null) {
+			headers.setCacheControl(CacheControl.noStore());
+			return new ResponseEntity<Object>(body, headers, status)
+		}
+		
 		headers.setCacheControl(CacheControl.maxAge(86400L, TimeUnit.SECONDS).cachePrivate());
 		headers.setETag("\"" + ComputeEtagValue.computeEtag(appendingValue) + "\"");
 		
-		return new ResponseEntity<Map<String,List<Object>>>(body, headers, status);
+		return new ResponseEntity<Object>(body, headers, status);
 	}
+
 }
 
 
