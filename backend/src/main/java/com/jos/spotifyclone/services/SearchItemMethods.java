@@ -63,13 +63,13 @@ public class SearchItemMethods {
 			}
 	}
 	
-	public AlbumSimplified cacheAndPutAlbumsSimplified (String name, String id, String imageUrl, 
+	public AlbumSimplified cacheAndPutAlbumsSimplified (String name, String id, Image[] images, 
 			String artistName, String artistId) {
 		if (!albumSimplifiedCache.asMap().containsKey(name)) {
 			AlbumSimplified album =  new AlbumSimplified.Builder()
 					.setName(name)
 					.setId(id)
-					.setImages(new Image.Builder().setUrl(imageUrl).build())
+					.setImages(imags)
 					.setArtists(cacheAndPutArtistsSimplified(artistName, artistId))
 					.build();
 						albumSimplifiedCache.put(name, album);
@@ -81,16 +81,14 @@ public class SearchItemMethods {
 		}
 	}
 	
-	public Track cacheAndPutTracks (String name, String id, String artistName, String artistId, String imageUrl) {
+	public Track cacheAndPutTracks (String name, String id, String artistName, String artistId, Image[] images) {
 		if (!trackCache.asMap().containsKey(name)) {
 			Track track = new Track.Builder()
 					.setName(name)
 					.setId(id)
 					.setArtists(cacheAndPutArtistsSimplified(artistName, artistId))		
 					.setAlbum(new AlbumSimplified.Builder()
-							.setImages(new Image.Builder()
-									.setUrl(imageUrl)
-									.build())
+							.setImages(images)
 							.build())
 					.build();
 			trackCache.put(name, track);
@@ -103,15 +101,13 @@ public class SearchItemMethods {
 		}
 	}
 	
-	public PlaylistSimplified cacheAndPutPlaylistsSimplified (String name, String id, User owner,String imageUrl) {
+	public PlaylistSimplified cacheAndPutPlaylistsSimplified (String name, String id, User owner,Image[] images) {
 		if (!playlistSimplifiedCache.asMap().containsKey(name)) {
 			PlaylistSimplified playlist = new PlaylistSimplified.Builder()
 					.setName(name)
 					.setId(id)
 					.setOwner(owner)
-					.setImages(new Image.Builder()
-							.setUrl(imageUrl)
-							.build())
+					.setImages(images)
 					.setType(ModelObjectType.PLAYLIST)
 					.build();
 			playlistSimplifiedCache.put(name, playlist);
