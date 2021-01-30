@@ -48,5 +48,14 @@ public class BadRequestExceptionHandling extends ResponseEntityExceptionHandler 
 		body.put("Reason", "Query Parameter Found No Resource");
 		return handleExceptionInternal(ex, body, new HttpHeaders(), HttpStatus.NOT_FOUND, req);
 	}
+	
+	@ExceptionHandler(ArrayIndexOutOfBoundsException.class)
+	@ResponseBody
+	public ResponseEntity<Object> indexOutOfBounds (ArrayIndexOutOfBoundsException ex, WebRequest req) {
+		Map<String,String> body = new HashMap<>();
+		body.put("Status", "500");
+		body.put("Reason", "Index Out Of Bounds");
+		return handleExceptionInternal(ex, body, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, req);	
+	}
 
 }

@@ -56,7 +56,6 @@ public class SearchItem {
 						duplicate.add(artists.getName());
 						artistToResponse.add(itemMethods.cacheAndPutArtists(artists.getName(),artists.getId(), 
 								artists.getImages()[0].getUrl()));
-							
 						response.put("Artists" , artistToResponse);
 					}
 			}
