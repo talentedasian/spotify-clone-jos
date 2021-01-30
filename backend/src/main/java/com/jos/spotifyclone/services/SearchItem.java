@@ -64,7 +64,7 @@ public class SearchItem {
 					for (ArtistSimplified artistsInTracks : tracks.getArtists()) {
 						if (!duplicate.contains(artistsInTracks.getName())) {
 							trackToResponse.add(itemMethods.cacheAndPutTracks(tracks.getName(), tracks.getId(),
-								artistsInTracks.getName(), artistsInTracks.getId(), tracks.getAlbum().getImages()[0].getUrl()));
+								artistsInTracks.getName(), artistsInTracks.getId(), tracks.getAlbum().getImages()));
 								
 							response.put("Tracks" , trackToResponse);
 						}
@@ -73,14 +73,14 @@ public class SearchItem {
 			
 			for (AlbumSimplified albums : result.getAlbums().getItems()) {
 				for (ArtistSimplified artistsInAlbums : albums.getArtists()) {
-					albumToResponse.add(itemMethods.cacheAndPutAlbumsSimplified(albums.getName(), albums.getId(), albums.getImages()[0].getUrl(),
+					albumToResponse.add(itemMethods.cacheAndPutAlbumsSimplified(albums.getName(), albums.getId(), albums.getImages(),
 							artistsInAlbums.getName(), artistsInAlbums.getId()));
 					response.put("Albums", albumToResponse);
 				}
 			}
 			
 			for (PlaylistSimplified playlists : result.getPlaylists().getItems()) {
-				playlistToResponse.add(itemMethods.cacheAndPutPlaylistsSimplified(playlists.getName(), playlists.getId(), playlists.getOwner(), playlists.getImages()[0].getUrl()));
+				playlistToResponse.add(itemMethods.cacheAndPutPlaylistsSimplified(playlists.getName(), playlists.getId(), playlists.getOwner(), playlists.getImages()));
 				response.put("Playlists", playlistToResponse);
 			}
 				
