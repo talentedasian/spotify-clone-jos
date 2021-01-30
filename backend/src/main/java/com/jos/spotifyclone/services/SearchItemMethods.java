@@ -69,7 +69,7 @@ public class SearchItemMethods {
 			AlbumSimplified album =  new AlbumSimplified.Builder()
 					.setName(name)
 					.setId(id)
-					.setImages(imags)
+					.setImages(images)
 					.setArtists(cacheAndPutArtistsSimplified(artistName, artistId))
 					.build();
 						albumSimplifiedCache.put(name, album);
