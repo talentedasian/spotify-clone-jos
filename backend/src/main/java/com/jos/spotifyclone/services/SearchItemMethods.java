@@ -31,12 +31,12 @@ public class SearchItemMethods {
 	
 	org.apache.logging.log4j.Logger log = LogManager.getLogger(SearchItemMethods.class);
 	
-	public Artist cacheAndPutArtists (String name, String id, String imageUrl) {
+	public Artist cacheAndPutArtists (String name, String id, Image[] images) {
 			if (!artistCache.asMap().containsKey(name)) {
 				Artist artist = new Artist.Builder()
 						.setName(name)
 						.setId(id)
-						.setImages(new Image.Builder().setUrl(imageUrl).build())
+						.setImages(images)
 						.setType(ModelObjectType.ARTIST)
 						.build();
 				artistCache.put(name, artist);

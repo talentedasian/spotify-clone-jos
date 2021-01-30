@@ -55,7 +55,7 @@ public class SearchItem {
 					if (!duplicate.contains(artists.getName())) {
 						duplicate.add(artists.getName());
 						artistToResponse.add(itemMethods.cacheAndPutArtists(artists.getName(),artists.getId(), 
-								artists.getImages()[0].getUrl()));
+								artists.getImages()));
 						response.put("Artists" , artistToResponse);
 					}
 			}
