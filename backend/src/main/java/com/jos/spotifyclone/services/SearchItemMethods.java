@@ -71,6 +71,7 @@ public class SearchItemMethods {
 					.setId(id)
 					.setImages(images)
 					.setArtists(cacheAndPutArtistsSimplified(artistName, artistId))
+					.setType(ModelObjectType.ALBUM)
 					.build();
 						albumSimplifiedCache.put(name, album);
 						log.info("Putting and getting from AlbumSimplified cache");
@@ -90,6 +91,7 @@ public class SearchItemMethods {
 					.setAlbum(new AlbumSimplified.Builder()
 							.setImages(images)
 							.build())
+					.setType(ModelObjectType.TRACK)
 					.build();
 			trackCache.put(name, track);
 			log.info("Putting and getting from Track cache");
