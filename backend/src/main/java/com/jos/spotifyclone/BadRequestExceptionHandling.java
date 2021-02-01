@@ -1,8 +1,12 @@
 package com.jos.spotifyclone;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +16,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import org.springframework.web.servlet.view.RedirectView;
 
+import com.jos.spotifyclone.services.SpotifyConnect;
 import com.wrapper.spotify.exceptions.detailed.BadRequestException;
 import com.wrapper.spotify.exceptions.detailed.NotFoundException;
 import com.wrapper.spotify.exceptions.detailed.UnauthorizedException;
@@ -20,9 +26,10 @@ import com.wrapper.spotify.exceptions.detailed.UnauthorizedException;
 @ControllerAdvice
 public class BadRequestExceptionHandling extends ResponseEntityExceptionHandler {
 
+	@Autowired
+	private SpotifyConnect spotifyConnect;
 	
 	@ExceptionHandler(BadRequestException.class)
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	@ResponseBody
 	public ResponseEntity<Object> badRequest (BadRequestException ex , WebRequest req) {
 		Map<String,String> body = new HashMap<>();
@@ -32,12 +39,9 @@ public class BadRequestExceptionHandling extends ResponseEntityExceptionHandler 
 	}
 	
 	@ExceptionHandler(UnauthorizedException.class)
-	@ResponseBody
-	public ResponseEntity<Object> unAuthorized (UnauthorizedException ex, WebRequest req) {
-		Map<String,String> body = new HashMap<>();
-		body.put("Status", "401");
-		body.put("Reason", "Invalid Access Token");
-		return handleExceptionInternal(ex, body, new HttpHeaders(), HttpStatus.UNAUTHORIZED, req);
+	public RedirectView unAuthorized () {	
+			RedirectView rw = new RedirectView(spotifyConnect.requestAccessToken());
+			return rw;
 	}
 	
 	@ExceptionHandler(NotFoundException.class)

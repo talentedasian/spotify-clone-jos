@@ -53,21 +53,10 @@ public class SpotifyConnect {
     }
 
 
-    @PostConstruct
-    public void openAuthWindow() throws IOException {
-        Runtime runtime = Runtime.getRuntime();
-        final URI uri = authorizationCodeUriRequestBuilder.build().execute();
+    public String requestAccessToken () {
+        final String uri = authorizationCodeUriRequestBuilder.build().execute().toString();
         System.out.println(uri);
-        try {
-            runtime.exec("rundll32 url.dll,FileProtocolHandler " + uri);
-        } catch (IOException e) {
-            System.out.println("If you're running on Windows and read this it looks like we can't open your browser...");
-        }
-        try {
-            runtime.exec("open " + uri);
-        } catch (IOException e) {
-            System.out.println("If you're running on MacOS and read this it looks like we can't open your browser...");
-        }
+        return uri;
     }
 
     public void addAuthCode(String code) throws ParseException, SpotifyWebApiException, IOException {

@@ -4,11 +4,9 @@ package com.jos.spotifyclone.controller;
 import com.jos.spotifyclone.services.ComputeEtagValue;
 import com.jos.spotifyclone.services.HttpHeadersResponse;
 import com.jos.spotifyclone.services.SpotifyConnect;
-import com.neovisionaries.i18n.CountryCode;
 
 import com.wrapper.spotify.enums.ModelObjectType;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
-import com.wrapper.spotify.model_objects.miscellaneous.PlaylistTracksInformation;
 import com.wrapper.spotify.model_objects.specification.*;
 
 import org.apache.hc.core5.http.ParseException;
@@ -18,6 +16,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -69,7 +68,7 @@ public class UserController implements HttpHeadersResponse<Object>{
         List<PlaylistSimplified> listOfUsersPlaylistToResponse = new ArrayList<>();
         
         for (PlaylistSimplified listOfUsersPlaylist : response.getItems()){
-            var listOfUsersPlaylistBuilder = new Playlist.Builder()
+            var listOfUsersPlaylistBuilder = new PlaylistSimplified.Builder()
             		.setName(listOfUsersPlaylist.getName())
             		.setId(listOfUsersPlaylist.getId())
             		.setImages(new Image.Builder()
@@ -82,6 +81,7 @@ public class UserController implements HttpHeadersResponse<Object>{
 
         return responseEntity(listOfUsersPlaylistToResponse, null, HttpStatus.OK);
     }
+    
 
     @GetMapping("/followed-artists")
     public ResponseEntity<Object> followedArtists() throws ParseException, SpotifyWebApiException, IOException {
@@ -103,75 +103,20 @@ public class UserController implements HttpHeadersResponse<Object>{
         return responseEntity(followedArtistToResponse, null, HttpStatus.OK);
     }
 
-//    //http://localhost:8080/api/user/check-follow-artist-user?user_ids=1l0mKo96Jh9HVYONcRl3Yp
-//    @GetMapping("/check-follow-artist-user")
-//    public String checkFollowArtistOrUser(@RequestParam String[] user_ids) throws ParseException, SpotifyWebApiException, IOException {
-//        final ModelObjectType type = ModelObjectType.ARTIST;
-//        Boolean[] response = spotifyConnect.getSpotifyApi().checkCurrentUserFollowsArtistsOrUsers(type,user_ids).build().execute();
-//        for (Boolean b : response){
-//            if(b){
-//                //regex removes square brackets with any content between them
-//                return "You are already following " + Arrays.toString(user_ids).replaceAll("\\[(.*?)\\]", "$1");
-//            }
-//        }
-//        return "You are not following " + Arrays.toString(user_ids).replaceAll("\\[(.*?)\\]", "$1");
-//    }
-//
-//    //http://localhost:8080/api/user/follow-artist-user?user_ids=1l0mKo96Jh9HVYONcRl3Yp
-//    @GetMapping("/follow-artist-user")
-//    public String followArtistOrUser(@RequestParam String[] user_ids) throws ParseException, SpotifyWebApiException, IOException {
-//        final ModelObjectType type = ModelObjectType.ARTIST;
-//        String response = spotifyConnect.getSpotifyApi().followArtistsOrUsers(type,user_ids).build().execute();
-//        Boolean[] responseCheck = spotifyConnect.getSpotifyApi().checkCurrentUserFollowsArtistsOrUsers(type,user_ids).build().execute();
-//        for (Boolean b : responseCheck){
-//            if(b){
-//                //regex removes square brackets with any content between them
-//                return "Success! You are now following " + Arrays.toString(user_ids).replaceAll("\\[(.*?)\\]", "$1");
-//            }
-//        }
-//        return "You are not following " + Arrays.toString(user_ids).replaceAll("\\[(.*?)\\]", "$1");
-//    }
-//
-//    //http://localhost:8080/api/user/unfollow-artist-user?user_ids=1l0mKo96Jh9HVYONcRl3Yp
-//    @GetMapping("/unfollow-artist-user")
-//    public String unfollowArtistOrUser(@RequestParam String[] user_ids) throws ParseException, SpotifyWebApiException, IOException {
-//        final ModelObjectType type = ModelObjectType.ARTIST;
-//        String response = spotifyConnect.getSpotifyApi().unfollowArtistsOrUsers(type,user_ids).build().execute();
-//        Boolean[] responseCheck = spotifyConnect.getSpotifyApi().checkCurrentUserFollowsArtistsOrUsers(type,user_ids).build().execute();
-//        for (Boolean b : responseCheck){
-//            if(b){
-//                //regex removes square brackets with any content between them
-//                return "Success! You are now following " + Arrays.toString(user_ids).replaceAll("\\[(.*?)\\]", "$1");
-//            }
-//        }
-//        return "You are not following " + Arrays.toString(user_ids).replaceAll("\\[(.*?)\\]", "$1") + " anymore.";
-//    }
-//
-//    //http://localhost:8080/api/user/check-follow-playlist?ownerId=abbaspotify&playlistId=3AGOiaoRXMSjswCLtuNqv5&user_ids=abbaspotify
-//    @GetMapping("/check-follow-playlist")
-//    public String checkUsersFollowPlaylist(@RequestParam String ownerId, @RequestParam String playlistId, @RequestParam String[] user_ids) throws ParseException, SpotifyWebApiException, IOException {
-//        Boolean[] response = spotifyConnect.getSpotifyApi().checkUsersFollowPlaylist(ownerId, playlistId, user_ids).build().execute();
-//        for (Boolean b : response){
-//            if(b){
-//                return "The users are following " + playlistId.replaceAll("\\[(.*?)\\]", "$1");
-//            }
-//        }
-//        return "The users are not following " + playlistId.replaceAll("\\[(.*?)\\]", "$1");
-//    }
-//
-//    //http://localhost:8080/api/user/follow-playlist?playlistId=3AGOiaoRXMSjswCLtuNqv5
-//    @GetMapping("/follow-playlist")
-//    public String followPlaylist(@RequestParam String playlistId, @RequestParam(required = false) boolean public_) throws ParseException, SpotifyWebApiException, IOException {
-//        String response = spotifyConnect.getSpotifyApi().followPlaylist(playlistId, public_).build().execute();
-//        return "Success! You are now following the " + playlistId + " playlist.";
-//    }
-//
-//    //http://localhost:8080/api/user/unfollow-playlist?ownerId=abbaspotify&playlistId=3AGOiaoRXMSjswCLtuNqv5
-//    @GetMapping("/unfollow-playlist")
-//    public String unfollowPlaylist(String ownerId, @RequestParam String playlistId) throws ParseException, SpotifyWebApiException, IOException {
-//        String response = spotifyConnect.getSpotifyApi().unfollowPlaylist(ownerId, playlistId).build().execute();
-//        return "You are not following " + playlistId + " anymore.";
-//    }
+
+    //http://localhost:8080/api/user/follow-playlist?playlistId=3AGOiaoRXMSjswCLtuNqv5
+    @PostMapping()
+    public String followPlaylist(@RequestParam String playlistId, @RequestParam(required = false) boolean public_) throws ParseException, SpotifyWebApiException, IOException {
+        String response = spotifyConnect.getSpotifyApi().followPlaylist(playlistId, public_).build().execute();
+        return "Success! You are now following " + playlistId + " playlist.";
+    }
+
+    //http://localhost:8080/api/user/unfollow-playlist?ownerId=abbaspotify&playlistId=3AGOiaoRXMSjswCLtuNqv5
+    @GetMapping("/unfollow-playlist")
+    public String unfollowPlaylist(String ownerId, @RequestParam String playlistId) throws ParseException, SpotifyWebApiException, IOException {
+        String response = spotifyConnect.getSpotifyApi().unfollowPlaylist(ownerId, playlistId).build().execute();
+        return "You are not following " + playlistId + " anymore.";
+    }
 
     @GetMapping("/saved-albums")
     public ResponseEntity<Object> savedAlbums() throws ParseException, SpotifyWebApiException, IOException {
@@ -199,42 +144,41 @@ public class UserController implements HttpHeadersResponse<Object>{
     		savedAlbumToResponse.add(savedAlbumBuilder);
         	}
         }
-        
         return responseEntity(savedAlbumToResponse, null, HttpStatus.OK);
     }
 
-//    @GetMapping("/saved-tracks")
-//    public Map<String, Object> savedTracks() throws ParseException, SpotifyWebApiException, IOException {
-//        Paging<SavedTrack> response = spotifyConnect.getSpotifyApi().getUsersSavedTracks().build().execute();
-//        Map<String, Object> map = new HashMap<>();
-//        List<Object> savedTrackToResponse = new ArrayList<>();
-//        
-//        for(SavedTrack savedTrack : response.getItems()){
-//        	var track = savedTrack.getTrack();
-//            for (ArtistSimplified savedTrackArtist : track.getArtists()) {
-//            	var savedTrackBuilder = new SavedTrack.Builder()
-//            			.setAddedAt(savedTrack.getAddedAt())
-//            			.setTrack(new Track.Builder()
-//            					.setName(track.getName())
-//            					.setId(track.getId())
-//            					.setAlbum(new AlbumSimplified.Builder()
-//            							.setImages(new Image.Builder()
-//            									.setUrl(track.getAlbum().getImages()[0].getUrl())
-//            									.build())
-//            							.build())
-//            					.setArtists(new ArtistSimplified.Builder()
-//            							.setName(savedTrackArtist.getName())
-//            							.setId(savedTrackArtist.getId())
-//            							.build())
-//            					.build())
-//            			.build();
-//            	
-//            	savedTrackToResponse.add(savedTrackBuilder);
-//            }
-//        }
-//        map.put("User-Saved-Track", savedTrackToResponse);
-//        return map;
-//    }
+    
+    @GetMapping("/saved-tracks")
+    public ResponseEntity<Object> savedTracks() throws ParseException, SpotifyWebApiException, IOException {
+        Paging<SavedTrack> response = spotifyConnect.getSpotifyApi().getUsersSavedTracks().build().execute();
+        
+        List<Object> savedTrackToResponse = new ArrayList<>();
+        for(SavedTrack savedTrack : response.getItems()){
+        	var track = savedTrack.getTrack();
+            for (ArtistSimplified savedTrackArtist : track.getArtists()) {
+            	var savedTrackBuilder = new SavedTrack.Builder()
+            			.setAddedAt(savedTrack.getAddedAt())
+            			.setTrack(new Track.Builder()
+            					.setName(track.getName())
+            					.setId(track.getId())
+            					.setAlbum(new AlbumSimplified.Builder()
+            							.setImages(new Image.Builder()
+            									.setUrl(track.getAlbum().getImages()[0].getUrl())
+            									.build())
+            							.build())
+            					.setArtists(new ArtistSimplified.Builder()
+            							.setName(savedTrackArtist.getName())
+            							.setId(savedTrackArtist.getId())
+            							.build())
+            					.build())
+            			.build();
+            	
+            	savedTrackToResponse.add(savedTrackBuilder);
+            }
+        }
+        
+        return responseEntity(savedTrackToResponse, null, HttpStatus.OK);
+    }
 //
 //    //run http://localhost:8080/api/user/saved-albums/ first to find id's
 //    //http://localhost:8080/api/user/remove-albums?ids=<replace with albums id>
@@ -325,59 +269,43 @@ public class UserController implements HttpHeadersResponse<Object>{
 //    }
 
     @GetMapping("/top-artists")
-    public Map<String, Object> getTopArtists() throws ParseException, SpotifyWebApiException, IOException {
-        var response = spotifyConnect.getSpotifyApi().getUsersTopArtists().build().execute();
+    public ResponseEntity<Object> getUsersTopArtists() throws ParseException, SpotifyWebApiException, IOException {
+        Paging<Artist> response = spotifyConnect.getSpotifyApi().getUsersTopArtists().build().execute();
 
-        List<ArtistModel> list = new ArrayList<>();
-        for(Artist artist : response.getItems()){
-            ExternalUrl externalUrl = artist.getExternalUrls();
-            Followers followers = artist.getFollowers();
-            String[] genres = artist.getGenres();
-            Image[] images = artist.getImages();
-            String artistName = artist.getName();
-
-            list.add(new ArtistModel(externalUrl, followers, genres, images, artistName));
+        List<Artist> usersTopArtistsToResponse = new ArrayList<>();
+        for(Artist usersTopArtists : response.getItems()){
+    		 var usersTopArtistsBuilder = new Artist.Builder()
+    				 .setName(usersTopArtists.getName())
+    				 .setId(usersTopArtists.getId())
+    				 .setGenres(usersTopArtists.getGenres())
+    				 .setImages(usersTopArtists.getImages())
+    				 .build();
+    		 
+    		 usersTopArtistsToResponse.add(usersTopArtistsBuilder);
         }
 
-        Map<String, Object> map = new HashMap<>();
-        map.put("Top artists ", list);
-        return map;
+        return responseEntity(usersTopArtistsToResponse, null, HttpStatus.OK);
     }
 
 
     @GetMapping("/top-tracks")
-    public Map<String, Object> getTopTracks() throws ParseException, SpotifyWebApiException, IOException {
-        var response = spotifyConnect.getSpotifyApi().getUsersTopTracks().build().execute();
+    public ResponseEntity<Object> getTopTracks() throws ParseException, SpotifyWebApiException, IOException {
+        Paging<Track> response = spotifyConnect.getSpotifyApi().getUsersTopTracks().build().execute();
 
-        List<TrackModel> list = new ArrayList<>();
-        for(Track track : response.getItems()){
-            String name = track.getName();
-            ExternalUrl externalUrls = track.getExternalUrls();
-
-            List<String> artistsList = new ArrayList<>();
-            ArtistSimplified[] artists = track.getArtists();
-            for(ArtistSimplified artistSimplified : artists){
-                artistsList.add(artistSimplified.getName());
-            }
-
-            List<AlbumModel> albumsList = new ArrayList<>();
-            AlbumSimplified albums = track.getAlbum();
-            String nameAlbum = albums.getName();
-            Image[] imageAlbum = albums.getImages();
-            ExternalUrl externalUrlAlbum = albums.getExternalUrls();
-            List<String> artistsOfAlbumList = new ArrayList<>();
-            ArtistSimplified[] artistsOfAlbum = albums.getArtists();
-            for(ArtistSimplified artistSimplified : artistsOfAlbum){
-                artistsOfAlbumList.add(artistSimplified.getName());
-            }
-            albumsList.add(new AlbumModel(nameAlbum, artistsOfAlbumList, imageAlbum, externalUrlAlbum));
-
-            list.add(new TrackModel(name, externalUrls, artistsList, albumsList));
+        List<Track> usersTopTracksToResponse = new ArrayList<>();
+        for (Track usersTopTracks : response.getItems()) {
+        	var usersTopTracksBuilder = new Track.Builder()
+        			.setName(usersTopTracks.getName())
+        			.setId(usersTopTracks.getId())
+        			.setDurationMs(usersTopTracks.getDurationMs())
+        			.setAlbum(new AlbumSimplified.Builder()
+        						.setImages(usersTopTracks.getAlbum().getImages())
+        						.build())
+        			.build();
+        			
+        	usersTopTracksToResponse.add(usersTopTracksBuilder);			
         }
-
-        Map<String, Object> map = new HashMap<>();
-        map.put("Top tracks ", list);
-        return map;
+        return responseEntity(usersTopTracksToResponse, null, HttpStatus.OK);
     }
 
     //TODO fix so it works with getUsersTopArtistsAndTracks method
@@ -401,26 +329,6 @@ public class UserController implements HttpHeadersResponse<Object>{
         return responseEntity(usersTopArtistToResponse, null, HttpStatus.OK);
     }
 
-    //http://localhost:8080/api/user/get-list-of-playlists-from?user_id=hrn1isdy2ia8q7wfb1ew2fah6
-    @GetMapping("/get-list-of-playlists-from")
-    public Map<String, Object> getListOfAnotherUserPlaylists(@RequestParam String user_id) throws ParseException, SpotifyWebApiException, IOException {
-        Paging<PlaylistSimplified> response = spotifyConnect.getSpotifyApi().getListOfUsersPlaylists(user_id).build().execute();
-
-        List<PlaylistSimplified> listOfAnotherUsersPlaylist = new ArrayList<>();
-        for(PlaylistSimplified playlist : response.getItems()){
-            String href = playlist.getHref();
-            ExternalUrl externalUrls = playlist.getExternalUrls();
-            String playlistName = playlist.getName();
-            PlaylistTracksInformation tracks = playlist.getTracks();
-            Image[] playlistCover = playlist.getImages();
-
-            list.add(new PlaylistModel(href, externalUrls, playlistName, tracks, playlistCover));
-        }
-        Map<String, Object> map = new HashMap<>();
-        map.put("Playlists ", list);
-        return map;
-    }
-
 	@Override
 	public ResponseEntity<Object> responseEntity(Object body,
 			String appendingValue, HttpStatus status) {
@@ -428,7 +336,7 @@ public class UserController implements HttpHeadersResponse<Object>{
 		
 		if (appendingValue == null) {
 			headers.setCacheControl(CacheControl.noStore());
-			return new ResponseEntity<Object>(body, headers, status)
+			return new ResponseEntity<Object>(body, headers, status);
 		}
 		
 		headers.setCacheControl(CacheControl.maxAge(86400L, TimeUnit.SECONDS).cachePrivate());
