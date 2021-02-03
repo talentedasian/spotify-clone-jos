@@ -13,7 +13,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 		
 		http.httpBasic().disable().
 		headers()
-		.contentSecurityPolicy("child-src 'self")
+		.contentSecurityPolicy("child-src 'self'")
 		.and()
 		.xssProtection().block(true).disable()
 		.frameOptions().deny();
