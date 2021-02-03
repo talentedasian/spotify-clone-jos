@@ -64,7 +64,7 @@ public class SearchController implements HttpHeadersResponse<Object>{
 	    						.setName(artists.getName())
 	    						.setId(artists.getId())
 	    						.build())
-	    				.setImages(new com.wrapper.spotify.model_objects.specification.Image.Builder().setUrl(response.getImages()[0].getUrl()).build())
+	    				.setImages(response.getImages())
 	    				.setReleaseDate(response.getReleaseDate())
 	    				.build();
 		    		
@@ -121,9 +121,7 @@ public class SearchController implements HttpHeadersResponse<Object>{
         	var playlistBuilder = new PlaylistSimplified.Builder()
         			.setName(playlist.getName())
         			.setId(playlist.getId())
-        			.setImages(new com.wrapper.spotify.model_objects.specification.Image.Builder()
-        					.setUrl(playlist.getImages()[0].getUrl())
-        					.build())
+        			.setImages(playlist.getImages())
     				.build();
 			playlistToResponse.add(playlistBuilder);
         }
@@ -148,7 +146,7 @@ public class SearchController implements HttpHeadersResponse<Object>{
     		var playlistInfoBuilder = new Playlist.Builder()
     				.setName(response.getName())
     				.setId(response.getId())
-    				.setImages(new Image.Builder().setUrl(response.getImages()[0].getUrl()).build())
+    				.setImages(response.getImages())
     				.setOwner(response.getOwner())
     				.setFollowers(response.getFollowers())
     				.setTracks(new Paging.Builder<PlaylistTrack>().setItems(playlistTrack).build())
@@ -172,9 +170,7 @@ public class SearchController implements HttpHeadersResponse<Object>{
 		var artistBuilder = new Artist.Builder()
 				.setName(response.getName())
 				.setId(response.getId())
-				.setImages(new com.wrapper.spotify.model_objects.specification.Image.Builder()
-						.setUrl(response.getImages()[0].getUrl())
-						.build())
+				.setImages(response.getImages())
 				.setFollowers(response.getFollowers())
 				.setPopularity(response.getPopularity())
 				.build();
@@ -195,9 +191,7 @@ public class SearchController implements HttpHeadersResponse<Object>{
     		var relatedArtistBuilder = new Artist.Builder()
     				.setName(relatedArtist.getName())
     				.setId(relatedArtist.getId())
-    				.setImages(new com.wrapper.spotify.model_objects.specification.Image.Builder()
-    						.setUrl(relatedArtist.getImages()[0].getUrl())
-    						.build())
+    				.setImages(relatedArtist.getImages())
     				.build();
     		
     		relatedArtistToResponse.add(relatedArtistBuilder);
@@ -221,10 +215,8 @@ public class SearchController implements HttpHeadersResponse<Object>{
 	    				.setAlbum(new AlbumSimplified.Builder()
 	    						.setName(artistTopTrackArtist.getName())
 	    						.setId(artistTopTrackArtist.getId())
-	    						.setImages(new com.wrapper.spotify.model_objects.specification.Image.Builder()
-	    								.setUrl(artistTopTrack.getAlbum().getImages()[0].getUrl())
-	    								.build()).
-	    						build())
+	    						.setImages(artistTopTrack.getAlbum().getImages())
+    							.build())
 						.build();
 				
 	    		artistTopTrackToResponse.add(artistTopTrackBuilder);
