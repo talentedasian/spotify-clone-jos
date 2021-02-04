@@ -1,23 +1,5 @@
 package com.jos.spotifyclone.controller;
 
-import com.jos.spotifyclone.services.ComputeEtagValue;
-import com.jos.spotifyclone.services.HttpHeadersResponse;
-import com.jos.spotifyclone.services.SearchItem;
-import com.jos.spotifyclone.services.SpotifyConnect;
-import com.neovisionaries.i18n.CountryCode;
-import com.wrapper.spotify.exceptions.SpotifyWebApiException;
-
-import com.wrapper.spotify.model_objects.specification.*;
-
-import org.apache.hc.core5.http.ParseException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.CacheControl;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.WebRequest;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -25,7 +7,35 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+
+import org.apache.hc.core5.http.ParseException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.CacheControl;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.WebRequest;
+
+import com.jos.spotifyclone.services.ComputeEtagValue;
+import com.jos.spotifyclone.services.HttpHeadersResponse;
+import com.jos.spotifyclone.services.SearchItem;
+import com.jos.spotifyclone.services.SpotifyConnect;
+import com.neovisionaries.i18n.CountryCode;
+import com.wrapper.spotify.exceptions.SpotifyWebApiException;
+import com.wrapper.spotify.model_objects.specification.Album;
+import com.wrapper.spotify.model_objects.specification.AlbumSimplified;
+import com.wrapper.spotify.model_objects.specification.Artist;
+import com.wrapper.spotify.model_objects.specification.ArtistSimplified;
+import com.wrapper.spotify.model_objects.specification.Paging;
+import com.wrapper.spotify.model_objects.specification.Playlist;
+import com.wrapper.spotify.model_objects.specification.PlaylistSimplified;
+import com.wrapper.spotify.model_objects.specification.PlaylistTrack;
+import com.wrapper.spotify.model_objects.specification.Track;
+import com.wrapper.spotify.model_objects.specification.TrackSimplified;
 
 @RequestMapping("api/search")
 @RestController

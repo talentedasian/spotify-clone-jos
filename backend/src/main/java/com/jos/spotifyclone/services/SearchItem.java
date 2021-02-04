@@ -53,37 +53,40 @@ public class SearchItem {
 
 			for (Artist artists : result.getArtists().getItems()) {
 					if (!duplicate.contains(artists.getName())) {
-						duplicate.add(artists.getName());
+						duplicate.add(artists.getId());
 						artistToResponse.add(itemMethods.cacheAndPutArtists(artists.getName(),artists.getId(), 
 								artists.getImages()));
-						response.put("Artists" , artistToResponse);
 					}
 			}
 			
 			for (Track tracks : result.getTracks().getItems()) {
 					for (ArtistSimplified artistsInTracks : tracks.getArtists()) {
-						if (!duplicate.contains(artistsInTracks.getName())) {
+						if (!duplicate.contains(tracks.getId())) {
+							 duplicate.add(tracks.getId());
+							 
 							trackToResponse.add(itemMethods.cacheAndPutTracks(tracks.getName(), tracks.getId(),
-								artistsInTracks.getName(), artistsInTracks.getId(), tracks.getAlbum().getImages()));
-								
-							response.put("Tracks" , trackToResponse);
-						}
+							artistsInTracks.getName(), artistsInTracks.getId(), tracks.getAlbum().getImages()));
 					}
 				}
+			}
+			
 			
 			for (AlbumSimplified albums : result.getAlbums().getItems()) {
 				for (ArtistSimplified artistsInAlbums : albums.getArtists()) {
 					albumToResponse.add(itemMethods.cacheAndPutAlbumsSimplified(albums.getName(), albums.getId(), albums.getImages(),
 							artistsInAlbums.getName(), artistsInAlbums.getId()));
-					response.put("Albums", albumToResponse);
 				}
 			}
 			
 			for (PlaylistSimplified playlists : result.getPlaylists().getItems()) {
 				playlistToResponse.add(itemMethods.cacheAndPutPlaylistsSimplified(playlists.getName(), playlists.getId(), playlists.getOwner(), playlists.getImages()));
-				response.put("Playlists", playlistToResponse);
 			}
-				
+			
+			response.put("Artists" , artistToResponse);
+			response.put("Tracks" , trackToResponse);
+			response.put("Albums", albumToResponse);
+			response.put("Playlists", playlistToResponse);
+			
 		HttpHeaders headers = new HttpHeaders();
 		headers.setBearerAuth(spotifyConnect.getSpotifyApi().getAccessToken());
 			
