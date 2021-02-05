@@ -1,10 +1,8 @@
 package com.jos.spotifyclone;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -13,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.servlet.view.RedirectView;
@@ -39,9 +36,8 @@ public class BadRequestExceptionHandling extends ResponseEntityExceptionHandler 
 	}
 	
 	@ExceptionHandler(UnauthorizedException.class)
-	public RedirectView unAuthorized () {	
-			RedirectView rw = new RedirectView(spotifyConnect.requestAccessToken());
-			return rw;
+	public RedirectView unAuthorized () {
+		return new RedirectView(spotifyConnect.requestAccessToken().toString());
 	}
 	
 	@ExceptionHandler(NotFoundException.class)

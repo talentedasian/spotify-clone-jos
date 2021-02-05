@@ -262,10 +262,90 @@ public class SearchController implements HttpHeadersResponse<Object>{
    
     
     @GetMapping("/item")
-    public ResponseEntity<Object> searchItem(@RequestParam String item) throws ParseException, SpotifyWebApiException, IOException, URISyntaxException, InterruptedException, ExecutionException {
-    	Map<String, List<Object>> map = searchItem.searchAnItem(item).getBody();
+    public ResponseEntity<Object> searchItem(@RequestParam String item, @RequestParam(required = false, defaultValue = "10")int limit) throws ParseException, SpotifyWebApiException, IOException, URISyntaxException, InterruptedException, ExecutionException {
+    	Map<String, List<Object>> map = searchItem.searchAnItem(item,limit).getBody();
     	
 		return responseEntity(map, null, HttpStatus.OK);
+    }
+    
+    @GetMapping("/item-artist")
+    public ResponseEntity<Object> searchItemArtist (@RequestParam String name) throws ParseException, SpotifyWebApiException, IOException {
+    	Paging<Artist> response = spotifyConnect.getSpotifyApi().searchArtists(name).limit(50).build().execute();
+    	List<Artist> searchItemArtistToResponse = new ArrayList<>();
+    	for (Artist searchItemArtist : response.getItems()) {
+    		var searchItemArtistBuilder = new Artist.Builder()
+    				.setName(searchItemArtist.getName())
+    				.setId(searchItemArtist.getId())
+    				.setImages(searchItemArtist.getImages())
+    				.build();
+    		
+    		searchItemArtistToResponse.add(searchItemArtistBuilder);
+    	}
+    	return responseEntity(searchItemArtistToResponse, null, HttpStatus.OK);
+    }
+    
+    @GetMapping("/item-track")
+    public ResponseEntity<Object> searchItemTrack (@RequestParam String name) throws ParseException, SpotifyWebApiException, IOException {
+    	Paging<Track> response = spotifyConnect.getSpotifyApi().searchTracks(name).limit(50).build().execute();
+    	List<Track> searchItemTrackToResponse = new ArrayList<>();
+    	for (Track searchItemTrack : response.getItems()) {
+    		for (ArtistSimplified searchItemTrackArtist : searchItemTrack.getArtists()) {
+				var searchItemTrackBuilder = new Track.Builder()
+						.setName(searchItemTrack.getName())
+						.setId(searchItemTrack.getId())
+						.setAlbum(new AlbumSimplified.Builder()
+								.setImages(searchItemTrack.getAlbum().getImages())
+								.build())
+						.setArtists(new ArtistSimplified.Builder()
+								.setName(searchItemTrackArtist.getName())
+								.setId(searchItemTrackArtist.getId())
+								.build())
+						.build();
+    			
+				searchItemTrackToResponse.add(searchItemTrackBuilder);
+    		}
+    	}
+    	return responseEntity(searchItemTrackToResponse, null, HttpStatus.OK);
+    }
+    
+    @GetMapping("/item-album")
+    public ResponseEntity<Object> searchItemAlbum (@RequestParam String name) throws ParseException, SpotifyWebApiException, IOException {
+    	Paging<AlbumSimplified> response = spotifyConnect.getSpotifyApi().searchAlbums(name).limit(50).build().execute();
+    	List<AlbumSimplified> searchItemAlbumToResponse = new ArrayList<>();
+    	
+    	for (AlbumSimplified searchItemAlbum : response.getItems()) {
+    		for (ArtistSimplified searchItemAlbumArtist : searchItemAlbum.getArtists()) {
+    			var searchItemAlbumBuilder = new AlbumSimplified.Builder()
+    					.setName(searchItemAlbum.getName())
+    					.setId(searchItemAlbum.getId())
+    					.setImages(searchItemAlbum.getImages())
+    					.setArtists(new ArtistSimplified.Builder()
+    							.setName(searchItemAlbumArtist.getName())
+    							.setId(searchItemAlbumArtist.getId())
+    							.build())
+    					.build();
+    			
+    			searchItemAlbumToResponse.add(searchItemAlbumBuilder);
+    		}
+    	}
+    	return responseEntity(searchItemAlbumToResponse, null, HttpStatus.OK);
+    }
+    
+    @GetMapping("/item-playlist")
+    public ResponseEntity<Object> searchItemPlaylist (@RequestParam String name) throws ParseException, SpotifyWebApiException, IOException {
+    	Paging<PlaylistSimplified> response = spotifyConnect.getSpotifyApi().searchPlaylists(name).limit(50).build().execute();
+    	List<PlaylistSimplified> searchItemPlaylistToResponse = new ArrayList<>();
+    	for (PlaylistSimplified searchItemPlaylist : response.getItems()) {
+    		var searchItemPlaylistBuilder = new PlaylistSimplified.Builder()
+    				.setName(searchItemPlaylist.getName())
+    				.setId(searchItemPlaylist.getId())
+    				.setOwner(searchItemPlaylist.getOwner())
+    				.setImages(searchItemPlaylist.getImages())
+    				.build();
+    			
+    		searchItemPlaylistToResponse.add(searchItemPlaylistBuilder);
+    	}
+    	return responseEntity(searchItemPlaylistToResponse, null, HttpStatus.OK);
     }
     
 	@Override

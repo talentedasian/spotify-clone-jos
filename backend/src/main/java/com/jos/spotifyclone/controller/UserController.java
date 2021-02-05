@@ -43,7 +43,7 @@ public class UserController implements HttpHeadersResponse<Object>{
     @GetMapping("/profile")
     public ResponseEntity<Object> currentUserProfile() throws ParseException, SpotifyWebApiException, IOException {
     	User response = spotifyConnect.getSpotifyApi().getCurrentUsersProfile().build().execute();
-    	
+   
     	return responseEntity(response, null, HttpStatus.OK);
     }
 

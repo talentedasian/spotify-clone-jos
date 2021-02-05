@@ -10,9 +10,7 @@ import org.apache.hc.core5.http.ParseException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 
-import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
 
@@ -53,9 +51,8 @@ public class SpotifyConnect {
     }
 
 
-    public String requestAccessToken () {
-        final String uri = authorizationCodeUriRequestBuilder.build().execute().toString();
-        System.out.println(uri);
+    public URI requestAccessToken () {
+        final URI uri = authorizationCodeUriRequestBuilder.build().execute();
         return uri;
     }
 

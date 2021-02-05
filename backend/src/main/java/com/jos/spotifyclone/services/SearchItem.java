@@ -8,7 +8,6 @@ import java.util.Map;
 
 import org.apache.hc.core5.http.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +23,6 @@ import com.wrapper.spotify.model_objects.specification.Track;
 
 
 @Component
-@Configuration
 public class SearchItem {
 
 	private final SpotifyConnect spotifyConnect;
@@ -36,9 +34,9 @@ public class SearchItem {
 		this.itemMethods = itemMethods;
 	}
 	
-	public ResponseEntity<Map<String, List<Object>>> searchAnItem(String item) throws ParseException, SpotifyWebApiException, IOException{
+	public ResponseEntity<Map<String, List<Object>>> searchAnItem(String item, int limit) throws ParseException, SpotifyWebApiException, IOException{
 		
-		SearchResult result = spotifyConnect.getSpotifyApi().searchItem(item, "artist,album,track,playlist").limit(10).build().execute();
+		SearchResult result = spotifyConnect.getSpotifyApi().searchItem(item, "artist,album,track,playlist").limit(limit).build().execute();
 		Map<String, List<Object>> response = new HashMap<>();
 		
 		List<String> duplicate = new ArrayList<>();
@@ -52,17 +50,19 @@ public class SearchItem {
 		List<Object> playlistToResponse = new ArrayList<>();
 
 			for (Artist artists : result.getArtists().getItems()) {
-					if (!duplicate.contains(artists.getName())) {
-						duplicate.add(artists.getId());
+				if (!duplicate.contains(artists.getName())) {
+						duplicate.add(artists.getName());
 						artistToResponse.add(itemMethods.cacheAndPutArtists(artists.getName(),artists.getId(), 
 								artists.getImages()));
+					} else {
+						System.out.println("oop sduplicate");
 					}
 			}
 			
 			for (Track tracks : result.getTracks().getItems()) {
 					for (ArtistSimplified artistsInTracks : tracks.getArtists()) {
 						if (!duplicate.contains(tracks.getId())) {
-							 duplicate.add(tracks.getId());
+							duplicate.add(tracks.getId());
 							 
 							trackToResponse.add(itemMethods.cacheAndPutTracks(tracks.getName(), tracks.getId(),
 							artistsInTracks.getName(), artistsInTracks.getId(), tracks.getAlbum().getImages()));

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
 import java.io.IOException;
+import java.net.URI;
 
 @RequestMapping("api/spotify-auth")
 @RestController
@@ -20,7 +21,12 @@ public class SpotifyAuthController  {
     public RedirectView handleAuthCode(@RequestParam String code) throws ParseException, SpotifyWebApiException, IOException {
         spotifyConnect.addAuthCode(code);
 
-        return new RedirectView("example");
+        return new RedirectView("http://localhost:3000");
     }
-
+    
+    @GetMapping("/login")
+    public URI getAccessToken () {
+    	return spotifyConnect.requestAccessToken();
+    }
+    
 }
