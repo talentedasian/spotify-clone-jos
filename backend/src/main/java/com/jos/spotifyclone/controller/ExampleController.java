@@ -23,5 +23,6 @@ public class ExampleController {
     public @ResponseBody User handleGet() throws ParseException, SpotifyWebApiException, IOException {
         return spotifyConnect.getSpotifyApi().getCurrentUsersProfile().build().execute();
     }
+    
 
 }
