@@ -1,6 +1,5 @@
 package com.jos.spotifyclone.controller;
 
-import com.jos.spotifyclone.model.TrackModel;
 import com.jos.spotifyclone.services.SpotifyConnect;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.model_objects.IPlaylistItem;
@@ -41,27 +40,27 @@ public class PlayerController {
         return map;
     }
 
-    @GetMapping("/recent")
-    public Map<String, Object> getRecentTracks() throws ParseException, SpotifyWebApiException, IOException {
-        var response = spotifyConnect.getSpotifyApi().getCurrentUsersRecentlyPlayedTracks().build().execute();
-
-        List<TrackModel> list = new ArrayList<>();
-        for(PlayHistory track : response.getItems()){
-            String name = track.getTrack().getName();
-            ExternalUrl externalUrls = track.getTrack().getExternalUrls();
-
-            ArtistSimplified[] artists = track.getTrack().getArtists();
-            List<String> artistsList = new ArrayList<>();
-            for(ArtistSimplified artist : artists){
-                artistsList.add(artist.getName());
-            }
-            list.add(new TrackModel(name, externalUrls, artistsList));
-        }
-
-        Map<String, Object> map = new HashMap<>();
-        map.put("Recent tracks",list);
-        return map;
-    }
+//    @GetMapping("/recent")
+//    public Map<String, Object> getRecentTracks() throws ParseException, SpotifyWebApiException, IOException {
+//        var response = spotifyConnect.getSpotifyApi().getCurrentUsersRecentlyPlayedTracks().build().execute();
+//
+//        List<TrackModel> list = new ArrayList<>();
+//        for(PlayHistory track : response.getItems()){
+//            String name = track.getTrack().getName();
+//            ExternalUrl externalUrls = track.getTrack().getExternalUrls();
+//
+//            ArtistSimplified[] artists = track.getTrack().getArtists();
+//            List<String> artistsList = new ArrayList<>();
+//            for(ArtistSimplified artist : artists){
+//                artistsList.add(artist.getName());
+//            }
+//            list.add(new TrackModel(name, externalUrls, artistsList));
+//        }
+//
+//        Map<String, Object> map = new HashMap<>();
+//        map.put("Recent tracks",list);
+//        return map;
+//    }
 
     @GetMapping("/available-devices")
     public Device[] availableDevices() throws ParseException, SpotifyWebApiException, IOException {

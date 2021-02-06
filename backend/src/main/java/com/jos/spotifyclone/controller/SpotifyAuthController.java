@@ -21,7 +21,7 @@ public class SpotifyAuthController  {
     public RedirectView handleAuthCode(@RequestParam String code) throws ParseException, SpotifyWebApiException, IOException {
         spotifyConnect.addAuthCode(code);
 
-        return new RedirectView("http://localhost:3000");
+        return new RedirectView("example");
     }
     
     @GetMapping("/login")

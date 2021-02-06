@@ -1,7 +1,6 @@
 package com.jos.spotifyclone.controller;
 
 import com.google.gson.JsonArray;
-import com.jos.spotifyclone.model.PlaylistModel;
 import com.jos.spotifyclone.services.SpotifyConnect;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.model_objects.miscellaneous.PlaylistTracksInformation;
@@ -102,62 +101,62 @@ public class PlaylistsController {
         return  spotifyConnect.getSpotifyApi().replacePlaylistsItems(playlist_id, uris).build().execute();
     }
 
-    @GetMapping("/featured-playlists")
-    public Map<String,Object> getListOfFeaturedPlaylists() throws ParseException, SpotifyWebApiException, IOException {
-        FeaturedPlaylists response = spotifyConnect.getSpotifyApi().getListOfFeaturedPlaylists().build().execute();
-
-        List<PlaylistModel> list = new ArrayList<>();
-        for(PlaylistSimplified playlist : response.getPlaylists().getItems()){
-            String href = playlist.getHref();
-            ExternalUrl externalUrls = playlist.getExternalUrls();
-            String playlistName = playlist.getName();
-            PlaylistTracksInformation tracks = playlist.getTracks();
-            Image[] playlistCover = playlist.getImages();
-
-            list.add(new PlaylistModel(href, externalUrls, playlistName, tracks, playlistCover));
-        }
-
-        Map<String,Object> map = new HashMap<>();
-        map.put("Featured playlists", list);
-        return map;
-    }
-
-    //http://localhost:8080/api/playlists/getPlaylist?playlist_id=3AGOiaoRXMSjswCLtuNqv5
-    @GetMapping("/playlist")
-    public Map<String, Object> getPlaylist(@RequestParam String playlist_id) throws ParseException, SpotifyWebApiException, IOException {
-        Playlist response = spotifyConnect.getSpotifyApi().getPlaylist(playlist_id).build().execute();
-
-        List<PlaylistModel> list = new ArrayList<>();
-        for(PlaylistTrack playlist : response.getTracks().getItems()){
-            String href = playlist.getTrack().getHref();
-            ExternalUrl externalUrls = playlist.getTrack().getExternalUrls();
-            String trackName = playlist.getTrack().getName();
-            Image[] playlistImage = response.getImages();
-            list.add(new PlaylistModel(href, externalUrls, trackName, playlistImage));
-        }
-        Map<String, Object> map = new HashMap<>();
-        map.put("Playlist", list);
-        return map;
-    }
-
-    //http://localhost:8080/api/playlists/playlist-items?playlist_id=37i9dQZF1DX4fpCWaHOned
-    @GetMapping("/playlist-items")
-    public Map<String, Object> getPlaylistItems(@RequestParam String playlist_id) throws ParseException, SpotifyWebApiException, IOException {
-        var response = spotifyConnect.getSpotifyApi().getPlaylistsItems(playlist_id).build().execute();
-
-        List<PlaylistModel> list = new ArrayList<>();
-        for(PlaylistTrack item : response.getItems()){
-            String href = item.getTrack().getHref();
-            ExternalUrl externalUrls = item.getTrack().getExternalUrls();
-            String trackName = item.getTrack().getName();
-            Image[] playlistCover = getPlaylistImage(playlist_id);
-
-            list.add(new PlaylistModel(href, externalUrls, trackName, playlistCover));
-        }
-        Map<String, Object> map = new HashMap<>();
-        map.put("Tracks",list);
-        return map;
-   }
+//    @GetMapping("/featured-playlists")
+//    public Map<String,Object> getListOfFeaturedPlaylists() throws ParseException, SpotifyWebApiException, IOException {
+//        FeaturedPlaylists response = spotifyConnect.getSpotifyApi().getListOfFeaturedPlaylists().build().execute();
+//
+//        List<PlaylistModel> list = new ArrayList<>();
+//        for(PlaylistSimplified playlist : response.getPlaylists().getItems()){
+//            String href = playlist.getHref();
+//            ExternalUrl externalUrls = playlist.getExternalUrls();
+//            String playlistName = playlist.getName();
+//            PlaylistTracksInformation tracks = playlist.getTracks();
+//            Image[] playlistCover = playlist.getImages();
+//
+//            list.add(new PlaylistModel(href, externalUrls, playlistName, tracks, playlistCover));
+//        }
+//
+//        Map<String,Object> map = new HashMap<>();
+//        map.put("Featured playlists", list);
+//        return map;
+//    }
+//
+//    //http://localhost:8080/api/playlists/getPlaylist?playlist_id=3AGOiaoRXMSjswCLtuNqv5
+//    @GetMapping("/playlist")
+//    public Map<String, Object> getPlaylist(@RequestParam String playlist_id) throws ParseException, SpotifyWebApiException, IOException {
+//        Playlist response = spotifyConnect.getSpotifyApi().getPlaylist(playlist_id).build().execute();
+//
+//        List<PlaylistModel> list = new ArrayList<>();
+//        for(PlaylistTrack playlist : response.getTracks().getItems()){
+//            String href = playlist.getTrack().getHref();
+//            ExternalUrl externalUrls = playlist.getTrack().getExternalUrls();
+//            String trackName = playlist.getTrack().getName();
+//            Image[] playlistImage = response.getImages();
+//            list.add(new PlaylistModel(href, externalUrls, trackName, playlistImage));
+//        }
+//        Map<String, Object> map = new HashMap<>();
+//        map.put("Playlist", list);
+//        return map;
+//    }
+//
+//    //http://localhost:8080/api/playlists/playlist-items?playlist_id=37i9dQZF1DX4fpCWaHOned
+//    @GetMapping("/playlist-items")
+//    public Map<String, Object> getPlaylistItems(@RequestParam String playlist_id) throws ParseException, SpotifyWebApiException, IOException {
+//        var response = spotifyConnect.getSpotifyApi().getPlaylistsItems(playlist_id).build().execute();
+//
+//        List<PlaylistModel> list = new ArrayList<>();
+//        for(PlaylistTrack item : response.getItems()){
+//            String href = item.getTrack().getHref();
+//            ExternalUrl externalUrls = item.getTrack().getExternalUrls();
+//            String trackName = item.getTrack().getName();
+//            Image[] playlistCover = getPlaylistImage(playlist_id);
+//
+//            list.add(new PlaylistModel(href, externalUrls, trackName, playlistCover));
+//        }
+//        Map<String, Object> map = new HashMap<>();
+//        map.put("Tracks",list);
+//        return map;
+//   }
 
     //http://localhost:8080/api/playlists/playlist-image?playlist_id=3AGOiaoRXMSjswCLtuNqv5
     @GetMapping("/playlist-image")
