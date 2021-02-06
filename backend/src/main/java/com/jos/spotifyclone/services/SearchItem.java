@@ -52,11 +52,10 @@ public class SearchItem {
 			for (Artist artists : result.getArtists().getItems()) {
 				if (!duplicate.contains(artists.getName())) {
 						duplicate.add(artists.getName());
+						
 						artistToResponse.add(itemMethods.cacheAndPutArtists(artists.getName(),artists.getId(), 
 								artists.getImages()));
-					} else {
-						System.out.println("oop sduplicate");
-					}
+					} 
 			}
 			
 			for (Track tracks : result.getTracks().getItems()) {
