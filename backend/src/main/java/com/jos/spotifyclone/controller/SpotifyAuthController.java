@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
 import java.io.IOException;
-import java.net.URI;
 
 @RequestMapping("api/spotify-auth")
 @RestController
@@ -25,8 +24,8 @@ public class SpotifyAuthController  {
     }
     
     @GetMapping("/login")
-    public URI getAccessToken () {
-    	return spotifyConnect.requestAccessToken();
+    public RedirectView getAccessToken () {
+    	return new RedirectView(spotifyConnect.requestAccessToken().toString());
     }
     
 }
